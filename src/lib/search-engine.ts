@@ -172,6 +172,7 @@ export async function clearIndex(): Promise<void> {
  */
 function extractExcerpt(
   matches: Record<string, string[]>,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   _query: string
 ): string {
   // 简单实现：返回匹配的字段名
