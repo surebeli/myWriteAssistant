@@ -9,6 +9,7 @@ import Highlight from "@tiptap/extension-highlight";
 import TaskList from "@tiptap/extension-task-list";
 import TaskItem from "@tiptap/extension-task-item";
 import CodeBlockLowlight from "@tiptap/extension-code-block-lowlight";
+import { Markdown } from "tiptap-markdown";
 import { common, createLowlight } from "lowlight";
 import { useEffect, useRef } from "react";
 import { EditorContent } from "./editor-content";
@@ -62,6 +63,11 @@ export function TiptapEditor({
           class: "not-prose bg-muted border rounded-lg p-4 my-4 overflow-x-auto",
         },
       }),
+      Markdown.configure({
+        html: true,
+        transformCopiedText: true,
+        transformPastedText: true,
+      }),
     ],
     content: currentDocContent || "",
     editorProps: {
@@ -71,17 +77,18 @@ export function TiptapEditor({
     },
     onUpdate: ({ editor }) => {
       const html = editor.getHTML();
+      const markdown = editor.storage.markdown?.getMarkdown() || "";
       
-      // Update store
+      // Update store with HTML for rendering
       updateContent(html);
       
-      // Trigger autosave with debounce
+      // Trigger autosave with Markdown
       if (autosaveTimerRef.current) {
         clearTimeout(autosaveTimerRef.current);
       }
       
       autosaveTimerRef.current = setTimeout(() => {
-        onUpdate?.(html);
+        onUpdate?.(markdown);
       }, autosaveDelay);
     },
   });
