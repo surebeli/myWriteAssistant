@@ -34,6 +34,7 @@ export function TiptapEditor({
   const autosaveTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   const editor = useEditor({
+    immediatelyRender: false,
     extensions: [
       StarterKit.configure({
         codeBlock: false, // We use CodeBlockLowlight instead
