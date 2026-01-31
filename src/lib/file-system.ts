@@ -3,6 +3,28 @@
  * 用于本地文件存储的工具函数
  */
 
+// Type declarations for File System Access API
+declare global {
+  interface Window {
+    showDirectoryPicker?: (options?: {
+      id?: string;
+      mode?: "read" | "readwrite";
+      startIn?: "desktop" | "documents" | "downloads" | "music" | "pictures" | "videos";
+    }) => Promise<FileSystemDirectoryHandle>;
+  }
+  
+  interface FileSystemHandle {
+    queryPermission?: (descriptor?: { mode?: "read" | "readwrite" }) => Promise<PermissionState>;
+    requestPermission?: (descriptor?: { mode?: "read" | "readwrite" }) => Promise<PermissionState>;
+  }
+  
+  interface FileSystemDirectoryHandle {
+    entries(): AsyncIterableIterator<[string, FileSystemHandle]>;
+    values(): AsyncIterableIterator<FileSystemHandle>;
+    keys(): AsyncIterableIterator<string>;
+  }
+}
+
 export interface FileSystemState {
   isSupported: boolean;
   hasPermission: boolean;
@@ -24,7 +46,7 @@ export function isFileSystemSupported(): boolean {
  * 请求目录访问权限
  */
 export async function requestDirectoryAccess(): Promise<FileSystemDirectoryHandle | null> {
-  if (!isFileSystemSupported()) {
+  if (!isFileSystemSupported() || !window.showDirectoryPicker) {
     console.warn("File System Access API is not supported");
     return null;
   }
@@ -52,15 +74,15 @@ export async function verifyPermission(
   handle: FileSystemDirectoryHandle,
   mode: "read" | "readwrite" = "readwrite"
 ): Promise<boolean> {
-  const options: FileSystemHandlePermissionDescriptor = { mode };
+  const options = { mode };
   
   // 检查现有权限
-  if ((await handle.queryPermission(options)) === "granted") {
+  if (handle.queryPermission && (await handle.queryPermission(options)) === "granted") {
     return true;
   }
   
   // 请求权限
-  if ((await handle.requestPermission(options)) === "granted") {
+  if (handle.requestPermission && (await handle.requestPermission(options)) === "granted") {
     return true;
   }
   

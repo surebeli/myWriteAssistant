@@ -77,7 +77,9 @@ export function TiptapEditor({
     },
     onUpdate: ({ editor }) => {
       const html = editor.getHTML();
-      const markdown = editor.storage.markdown?.getMarkdown() || "";
+      // Get markdown from tiptap-markdown storage
+      const storage = editor.storage as { markdown?: { getMarkdown?: () => string } };
+      const markdown = storage.markdown?.getMarkdown?.() || html;
       
       // Update store with HTML for rendering
       updateContent(html);
