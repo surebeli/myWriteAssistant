@@ -13,6 +13,7 @@ import { common, createLowlight } from "lowlight";
 import { useEffect, useRef } from "react";
 import { EditorContent } from "./editor-content";
 import { EditorToolbar } from "./editor-toolbar";
+import { useEditorContext } from "./editor-context";
 import { useEditorStore } from "@/stores/editor-store";
 
 // Create lowlight instance with common languages
@@ -28,6 +29,7 @@ export function TiptapEditor({
   autosaveDelay = 2000,
 }: TiptapEditorProps) {
   const { currentDocContent, updateContent } = useEditorStore();
+  const { setEditor } = useEditorContext();
   const autosaveTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   const editor = useEditor({
@@ -83,6 +85,12 @@ export function TiptapEditor({
       }, autosaveDelay);
     },
   });
+
+  // Register editor to context
+  useEffect(() => {
+    setEditor(editor);
+    return () => setEditor(null);
+  }, [editor, setEditor]);
 
   // Sync content from store to editor when document changes
   useEffect(() => {
