@@ -36,7 +36,7 @@ export function MessageBubble({
     if (isUser) return message.content;
     
     // 基础 Markdown 转换
-    let html = message.content
+    const html = message.content
       // 代码块
       .replace(/```(\w*)\n([\s\S]*?)```/g, '<pre class="bg-muted p-3 rounded-md overflow-x-auto my-2"><code>$2</code></pre>')
       // 行内代码

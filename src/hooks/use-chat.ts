@@ -129,6 +129,7 @@ export function useChat(options: UseChatOptions = {}) {
       setStreaming,
       setStreamingContent,
       options,
+      enableMaterialMatching,
     ]
   );
 
