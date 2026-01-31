@@ -17,6 +17,7 @@ interface EditorState {
   // Document state
   isDirty: boolean;
   lastSaved: Date | null;
+  wordCount: number;
   
   // Recent documents
   recentDocs: Array<{ id: string; title: string; updatedAt: Date }>;
@@ -30,23 +31,36 @@ interface EditorState {
   addRecentDoc: (doc: { id: string; title: string; updatedAt: Date }) => void;
 }
 
+// Helper to count words in text
+function countWords(text: string): number {
+  const cleaned = text.replace(/<[^>]*>/g, '').trim();
+  if (!cleaned) return 0;
+  // Count Chinese characters and English words
+  const chineseChars = (cleaned.match(/[\u4e00-\u9fa5]/g) || []).length;
+  const englishWords = cleaned.replace(/[\u4e00-\u9fa5]/g, ' ').trim().split(/\s+/).filter(w => w.length > 0).length;
+  return chineseChars + englishWords;
+}
+
 export const useEditorStore = create<EditorState>((set, get) => ({
   currentDocId: null,
   currentDocTitle: 'Untitled',
   currentDocContent: '',
   isDirty: false,
   lastSaved: null,
+  wordCount: 0,
   recentDocs: [],
   
   setCurrentDoc: (id, title, content) => set({
     currentDocId: id,
     currentDocTitle: title,
     currentDocContent: content,
+    wordCount: countWords(content),
     isDirty: false,
   }),
   
   updateContent: (content) => set({
     currentDocContent: content,
+    wordCount: countWords(content),
     isDirty: true,
   }),
   
@@ -75,6 +89,7 @@ export const useEditorStore = create<EditorState>((set, get) => ({
       currentDocId: id,
       currentDocTitle: 'Untitled',
       currentDocContent: '',
+      wordCount: 0,
       isDirty: false,
       lastSaved: null,
     });

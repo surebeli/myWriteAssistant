@@ -3,7 +3,6 @@
 import { useAppStore } from "@/stores/app-store";
 import { useSettingsStore } from "@/stores/settings-store";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -14,7 +13,8 @@ import {
   Tag,
   Search,
   FileEdit,
-  Library,
+  Settings,
+  Pencil,
 } from "lucide-react";
 
 export function Sidebar() {
@@ -24,141 +24,95 @@ export function Sidebar() {
   if (!sidebarOpen) return null;
 
   return (
-    <aside className="w-60 border-r bg-muted/30 flex flex-col">
+    <aside className="w-64 border-r bg-[#f6f5f8] dark:bg-[#131022] flex flex-col">
+      {/* Logo */}
+      <div className="p-6">
+        <h1 className="text-primary text-lg font-bold flex items-center gap-2">
+          <Pencil className="h-5 w-5" />
+          MyWriteAssistant
+        </h1>
+      </div>
+
       {/* Search */}
-      <div className="p-3">
-        <div className="relative">
-          <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+      <div className="px-4 py-2">
+        <div className="flex items-center bg-[#e9e7f4] dark:bg-gray-800 rounded-lg overflow-hidden">
+          <div className="text-[#57499c] flex items-center justify-center pl-3">
+            <Search className="h-5 w-5" />
+          </div>
           <Input
             type="search"
-            placeholder="搜索文档…"
-            className="pl-8 h-9"
-            aria-label="搜索文档"
+            placeholder="Search folders..."
+            className="border-none bg-transparent text-sm placeholder:text-[#57499c] focus-visible:ring-0 focus-visible:ring-offset-0"
           />
         </div>
       </div>
 
-      <Separator />
+      <ScrollArea className="flex-1 px-4 py-4">
+        {/* Folders */}
+        <p className="text-[#57499c] text-xs font-semibold uppercase tracking-wider px-3 mb-2">
+          Folders
+        </p>
+        <nav className="space-y-1">
+          <Button
+            variant="ghost"
+            className="w-full justify-start gap-3 px-3 py-2 h-auto font-medium"
+            onClick={() => setCurrentView("library")}
+          >
+            <Globe className="h-5 w-5" />
+            Web
+          </Button>
+          <Button
+            variant="ghost"
+            className="w-full justify-start gap-3 px-3 py-2 h-auto font-medium"
+          >
+            <FileText className="h-5 w-5" />
+            PDF
+          </Button>
+          <Button
+            variant={currentView === "editor" ? "default" : "ghost"}
+            className={`w-full justify-start gap-3 px-3 py-2 h-auto font-medium ${
+              currentView === "editor" ? "bg-primary text-white hover:bg-primary/90" : ""
+            }`}
+            onClick={() => setCurrentView("editor")}
+          >
+            <StickyNote className="h-5 w-5" />
+            Notes
+          </Button>
+        </nav>
 
-      <ScrollArea className="flex-1">
-        <div className="p-2">
-          {/* Navigation */}
+        {/* Tags */}
+        <div className="mt-8">
+          <p className="text-[#57499c] text-xs font-semibold uppercase tracking-wider px-3 mb-2">
+            Tags
+          </p>
           <nav className="space-y-1">
             <Button
-              variant={currentView === "editor" ? "secondary" : "ghost"}
-              className="w-full justify-start gap-2"
-              onClick={() => setCurrentView("editor")}
+              variant="ghost"
+              className="w-full justify-start gap-3 px-3 py-2 h-auto font-medium"
             >
-              <FileEdit className="h-4 w-4" />
-              写作
+              <Tag className="h-5 w-5 text-primary" />
+              AI Trends
             </Button>
             <Button
-              variant={currentView === "library" ? "secondary" : "ghost"}
-              className="w-full justify-start gap-2"
-              onClick={() => setCurrentView("library")}
+              variant="ghost"
+              className="w-full justify-start gap-3 px-3 py-2 h-auto font-medium"
             >
-              <Library className="h-4 w-4" />
-              文档库
+              <Tag className="h-5 w-5" />
+              Drafts
             </Button>
           </nav>
-
-          <Separator className="my-3" />
-
-          {/* Collections */}
-          <div className="space-y-1">
-            <p className="px-2 text-xs font-medium text-muted-foreground mb-2">
-              收藏文档
-            </p>
-            <Button
-              variant="ghost"
-              className="w-full justify-start gap-2 text-sm"
-            >
-              <Globe className="h-4 w-4" />
-              网页文章
-              <span className="ml-auto text-xs text-muted-foreground">12</span>
-            </Button>
-            <Button
-              variant="ghost"
-              className="w-full justify-start gap-2 text-sm"
-            >
-              <FileText className="h-4 w-4" />
-              PDF 文档
-              <span className="ml-auto text-xs text-muted-foreground">5</span>
-            </Button>
-            <Button
-              variant="ghost"
-              className="w-full justify-start gap-2 text-sm"
-            >
-              <StickyNote className="h-4 w-4" />
-              笔记
-              <span className="ml-auto text-xs text-muted-foreground">8</span>
-            </Button>
-          </div>
-
-          <Separator className="my-3" />
-
-          {/* Tags */}
-          <div className="space-y-1">
-            <p className="px-2 text-xs font-medium text-muted-foreground mb-2">
-              标签
-            </p>
-            <Button
-              variant="ghost"
-              className="w-full justify-start gap-2 text-sm"
-            >
-              <Tag className="h-4 w-4 text-blue-500" />
-              AI
-            </Button>
-            <Button
-              variant="ghost"
-              className="w-full justify-start gap-2 text-sm"
-            >
-              <Tag className="h-4 w-4 text-green-500" />
-              技术
-            </Button>
-            <Button
-              variant="ghost"
-              className="w-full justify-start gap-2 text-sm"
-            >
-              <Tag className="h-4 w-4 text-purple-500" />
-              产品
-            </Button>
-          </div>
-
-          <Separator className="my-3" />
-
-          {/* Recent drafts */}
-          <div className="space-y-1">
-            <p className="px-2 text-xs font-medium text-muted-foreground mb-2">
-              最近草稿
-            </p>
-            <Button
-              variant="ghost"
-              className="w-full justify-start gap-2 text-sm truncate"
-            >
-              <FileEdit className="h-4 w-4 shrink-0" />
-              <span className="truncate">AI 写作助手设计思路</span>
-            </Button>
-            <Button
-              variant="ghost"
-              className="w-full justify-start gap-2 text-sm truncate"
-            >
-              <FileEdit className="h-4 w-4 shrink-0" />
-              <span className="truncate">Proactive 模式技术实现</span>
-            </Button>
-          </div>
         </div>
       </ScrollArea>
 
-      {/* Storage folder */}
-      <div className="p-3 border-t">
+      {/* Settings */}
+      <div className="p-4 border-t border-gray-200 dark:border-gray-800">
         <Button
-          variant="outline"
-          className="w-full justify-start gap-2 text-xs"
-          onClick={() => openSettingsDialog("workspace")}
+          variant="ghost"
+          className="w-full justify-start gap-3 px-3 py-2 h-auto font-medium"
+          onClick={() => openSettingsDialog()}
         >
-          <FolderOpen className="h-4 w-4" />
-          <span className="truncate">{workspacePath || "未设置工作目录"}</span>
+          <Settings className="h-5 w-5" />
+          Settings
         </Button>
       </div>
     </aside>

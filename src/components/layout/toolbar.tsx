@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { useAppStore } from "@/stores/app-store";
 import { useEditorStore } from "@/stores/editor-store";
-import { useSettingsStore } from "@/stores/settings-store";
 import { Button } from "@/components/ui/button";
 import {
   PanelLeftClose,
@@ -13,7 +12,6 @@ import {
   FileText,
   Save,
   Download,
-  Settings,
   Sun,
   Moon,
   Check,
@@ -29,7 +27,6 @@ import {
 export function Toolbar() {
   const { theme, setTheme } = useTheme();
   const [saveStatus, setSaveStatus] = useState<"idle" | "saving" | "saved">("idle");
-  const { openSettingsDialog } = useSettingsStore();
   const {
     sidebarOpen,
     toggleSidebar,
@@ -115,21 +112,22 @@ export function Toolbar() {
 
   return (
     <TooltipProvider>
-      <header className="h-14 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 flex items-center justify-between px-4">
+      <header className="h-12 border-b bg-background flex items-center justify-between px-4">
         {/* Left section */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1">
           <Tooltip>
             <TooltipTrigger asChild>
               <Button
                 variant="ghost"
                 size="icon"
+                className="h-8 w-8"
                 onClick={toggleSidebar}
                 aria-label={sidebarOpen ? "关闭侧边栏" : "打开侧边栏"}
               >
                 {sidebarOpen ? (
-                  <PanelLeftClose className="h-5 w-5" />
+                  <PanelLeftClose className="h-4 w-4" />
                 ) : (
-                  <PanelLeftOpen className="h-5 w-5" />
+                  <PanelLeftOpen className="h-4 w-4" />
                 )}
               </Button>
             </TooltipTrigger>
@@ -138,10 +136,12 @@ export function Toolbar() {
             </TooltipContent>
           </Tooltip>
 
+          <div className="w-px h-4 bg-border mx-1" />
+
           <Tooltip>
             <TooltipTrigger asChild>
-              <Button variant="ghost" size="icon" aria-label="新建文档" onClick={handleNew}>
-                <FileText className="h-5 w-5" />
+              <Button variant="ghost" size="icon" className="h-8 w-8" aria-label="新建文档" onClick={handleNew}>
+                <FileText className="h-4 w-4" />
               </Button>
             </TooltipTrigger>
             <TooltipContent>新建文档</TooltipContent>
@@ -149,11 +149,11 @@ export function Toolbar() {
 
           <Tooltip>
             <TooltipTrigger asChild>
-              <Button variant="ghost" size="icon" aria-label="保存" onClick={handleSave} disabled={saveStatus === "saving"}>
+              <Button variant="ghost" size="icon" className="h-8 w-8" aria-label="保存" onClick={handleSave} disabled={saveStatus === "saving"}>
                 {saveStatus === "saved" ? (
-                  <Check className="h-5 w-5 text-green-500" />
+                  <Check className="h-4 w-4 text-green-500" />
                 ) : (
-                  <Save className="h-5 w-5" />
+                  <Save className="h-4 w-4" />
                 )}
               </Button>
             </TooltipTrigger>
@@ -164,8 +164,8 @@ export function Toolbar() {
 
           <Tooltip>
             <TooltipTrigger asChild>
-              <Button variant="ghost" size="icon" aria-label="导出" onClick={handleExport}>
-                <Download className="h-5 w-5" />
+              <Button variant="ghost" size="icon" className="h-8 w-8" aria-label="导出" onClick={handleExport}>
+                <Download className="h-4 w-4" />
               </Button>
             </TooltipTrigger>
             <TooltipContent>导出</TooltipContent>
@@ -173,52 +173,47 @@ export function Toolbar() {
         </div>
 
         {/* Center - Document title */}
-        <div className="flex items-center gap-2">
+        <div className="absolute left-1/2 -translate-x-1/2 flex items-center gap-2">
           <span className="text-sm font-medium">
             {currentDocTitle}
-            {isDirty && <span className="text-muted-foreground"> •</span>}
+            {isDirty && <span className="text-muted-foreground ml-1">•</span>}
           </span>
         </div>
 
         {/* Right section */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1">
           <Tooltip>
             <TooltipTrigger asChild>
               <Button
                 variant="ghost"
                 size="icon"
+                className="h-8 w-8"
                 onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
                 aria-label="切换主题"
               >
-                <Sun className="h-5 w-5 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
-                <Moon className="absolute h-5 w-5 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+                <Sun className="h-4 w-4 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+                <Moon className="absolute h-4 w-4 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
               </Button>
             </TooltipTrigger>
             <TooltipContent>切换主题</TooltipContent>
           </Tooltip>
 
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button variant="ghost" size="icon" aria-label="设置" onClick={() => openSettingsDialog()}>
-                <Settings className="h-5 w-5" />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>设置</TooltipContent>
-          </Tooltip>
+          <div className="w-px h-4 bg-border mx-1" />
 
           <Tooltip>
             <TooltipTrigger asChild>
               <Button
-                variant="ghost"
-                size="icon"
+                variant={aiPanelOpen ? "secondary" : "ghost"}
+                size="sm"
+                className="h-8 gap-1.5 px-3"
                 onClick={toggleAIPanel}
-                aria-label={aiPanelOpen ? "关闭 AI 面板" : "打开 AI 面板"}
               >
                 {aiPanelOpen ? (
-                  <PanelRightClose className="h-5 w-5" />
+                  <PanelRightClose className="h-4 w-4" />
                 ) : (
-                  <PanelRightOpen className="h-5 w-5" />
+                  <PanelRightOpen className="h-4 w-4" />
                 )}
+                <span className="text-xs">AI</span>
               </Button>
             </TooltipTrigger>
             <TooltipContent>

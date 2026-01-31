@@ -73,7 +73,7 @@ export function TiptapEditor({
     content: currentDocContent || "",
     editorProps: {
       attributes: {
-        class: "min-h-[calc(100vh-14rem)] outline-none",
+        class: "min-h-full outline-none focus:outline-none",
       },
     },
     onUpdate: ({ editor }) => {
@@ -119,9 +119,9 @@ export function TiptapEditor({
   }, []);
 
   return (
-    <div className="w-full border rounded-lg overflow-hidden">
+    <div className="w-full h-full flex flex-col border border-gray-200 dark:border-gray-800 rounded-lg overflow-hidden bg-white dark:bg-gray-950">
       <EditorToolbar editor={editor} />
-      <div className="p-4">
+      <div className="flex-1 overflow-auto p-4">
         <EditorContent editor={editor} />
       </div>
     </div>

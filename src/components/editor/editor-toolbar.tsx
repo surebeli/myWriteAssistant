@@ -54,12 +54,12 @@ function ToolbarButton({
         <Button
           type="button"
           variant="ghost"
-          size="sm"
+          size="icon"
           onClick={onClick}
           disabled={disabled}
           className={cn(
-            "h-8 w-8 p-0",
-            isActive && "bg-muted text-primary"
+            "h-8 w-8",
+            isActive && "bg-primary/10 text-primary"
           )}
         >
           {children}
@@ -91,7 +91,7 @@ export function EditorToolbar({ editor }: EditorToolbarProps) {
 
   return (
     <TooltipProvider delayDuration={300}>
-      <div className="flex items-center gap-0.5 p-1 border-b bg-muted/30 flex-wrap">
+      <div className="flex items-center gap-1 px-2 py-1.5 border-b border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-900/50">
         {/* Undo/Redo */}
         <ToolbarButton
           onClick={() => editor.chain().focus().undo().run()}
