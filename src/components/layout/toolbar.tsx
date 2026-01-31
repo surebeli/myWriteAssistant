@@ -2,6 +2,7 @@
 
 import { useAppStore } from "@/stores/app-store";
 import { useEditorStore } from "@/stores/editor-store";
+import { useDocument } from "@/hooks/use-document";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
@@ -35,6 +36,21 @@ export function Toolbar() {
     setAssistantMode,
   } = useAppStore();
   const { isDirty, currentDocTitle } = useEditorStore();
+  const { createNewDocument, saveDocument } = useDocument();
+
+  const handleNew = () => {
+    if (isDirty) {
+      if (window.confirm("当前文档未保存，确定创建新文档？")) {
+        createNewDocument();
+      }
+    } else {
+      createNewDocument();
+    }
+  };
+
+  const handleSave = async () => {
+    await saveDocument();
+  };
 
   return (
     <TooltipProvider>
@@ -63,7 +79,7 @@ export function Toolbar() {
 
           <Tooltip>
             <TooltipTrigger asChild>
-              <Button variant="ghost" size="icon" aria-label="新建文档">
+              <Button variant="ghost" size="icon" aria-label="新建文档" onClick={handleNew}>
                 <FileText className="h-5 w-5" />
               </Button>
             </TooltipTrigger>
@@ -72,7 +88,7 @@ export function Toolbar() {
 
           <Tooltip>
             <TooltipTrigger asChild>
-              <Button variant="ghost" size="icon" aria-label="保存">
+              <Button variant="ghost" size="icon" aria-label="保存" onClick={handleSave}>
                 <Save className="h-5 w-5" />
               </Button>
             </TooltipTrigger>
