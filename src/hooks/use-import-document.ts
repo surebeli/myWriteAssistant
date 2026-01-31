@@ -37,6 +37,10 @@ export function useImportDocument() {
         
         const clipped = await clipWebPage(url);
         
+        if (!clipped) {
+          throw new Error("Failed to extract content from URL");
+        }
+        
         setState((s) => ({ ...s, progress: 70 }));
 
         const docId = await addDocument({
@@ -75,6 +79,10 @@ export function useImportDocument() {
         
         const parsed = await parsePdfFile(file);
         
+        if (!parsed) {
+          throw new Error("Failed to parse PDF file");
+        }
+        
         setState((s) => ({ ...s, progress: 70 }));
 
         // 生成摘录
@@ -88,7 +96,7 @@ export function useImportDocument() {
           title: parsed.title || file.name.replace(/\.pdf$/i, ""),
           content: parsed.content,
           source: "pdf" as DocumentSource,
-          author: parsed.author,
+          author: parsed.metadata?.author,
           excerpt,
           wordCount,
           readingTime,

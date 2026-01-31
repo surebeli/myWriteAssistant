@@ -5,7 +5,7 @@
 
 import MiniSearch from "minisearch";
 import { get, set, del } from "idb-keyval";
-import type { CollectedDocument, SearchResult } from "@/types/document";
+import type { SearchResult } from "@/types/document";
 
 const SEARCH_INDEX_KEY = "search-index";
 
@@ -15,6 +15,15 @@ interface IndexedDocument {
   content: string;
   tags: string;
   summary: string;
+}
+
+// 用于索引的简化文档接口
+export interface DocumentForIndex {
+  id: string;
+  title: string;
+  content: string;
+  tags: string[];
+  summary?: string;
 }
 
 let searchInstance: MiniSearch<IndexedDocument> | null = null;
@@ -64,7 +73,7 @@ export async function initSearchEngine(): Promise<MiniSearch<IndexedDocument>> {
 /**
  * 添加文档到索引
  */
-export async function indexDocument(doc: CollectedDocument): Promise<void> {
+export async function indexDocument(doc: DocumentForIndex): Promise<void> {
   const engine = await initSearchEngine();
   
   const indexedDoc: IndexedDocument = {
@@ -108,7 +117,7 @@ export async function searchDocuments(
   }
   
   const engine = await initSearchEngine();
-  const results = engine.search(query, { limit });
+  const results = engine.search(query).slice(0, limit);
   
   return results.map((result) => ({
     id: result.id,
@@ -135,7 +144,7 @@ export async function getSearchSuggestions(
   }
   
   const engine = await initSearchEngine();
-  const suggestions = engine.autoSuggest(query, { limit });
+  const suggestions = engine.autoSuggest(query).slice(0, limit);
   
   return suggestions.map((s) => s.suggestion);
 }

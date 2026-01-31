@@ -15,6 +15,7 @@ export interface ClippedContent {
   siteName?: string;
   publishedTime?: string;
   wordCount: number;
+  readingTime: number;     // 阅读时间（分钟）
 }
 
 const turndownService = new TurndownService({
@@ -72,7 +73,7 @@ export function parseHtmlContent(html: string, baseUrl?: string): ClippedContent
     const reader = new Readability(document);
     const article = reader.parse();
     
-    if (!article) {
+    if (!article || !article.content) {
       return null;
     }
     
@@ -81,6 +82,7 @@ export function parseHtmlContent(html: string, baseUrl?: string): ClippedContent
     
     // 计算字数
     const wordCount = countWords(markdown);
+    const readingTime = calculateReadingTime(wordCount);
     
     return {
       title: article.title || "Untitled",
@@ -90,6 +92,7 @@ export function parseHtmlContent(html: string, baseUrl?: string): ClippedContent
       siteName: article.siteName || undefined,
       publishedTime: article.publishedTime || undefined,
       wordCount,
+      readingTime,
     };
   } catch (error) {
     console.error("Failed to parse HTML:", error);

@@ -11,12 +11,14 @@ export interface CollectedDocument {
   source: DocumentSource;
   sourceUrl?: string;        // 网页来源 URL
   sourcePath?: string;       // 本地文件路径
+  siteName?: string;         // 网站名称
   
   // 元数据
   author?: string;
-  publishedAt?: Date;
-  createdAt: Date;
-  updatedAt: Date;
+  excerpt?: string;          // 内容摘录
+  publishedAt?: string;
+  createdAt: string;
+  updatedAt: string;
   
   // 分类
   tags: string[];
@@ -24,26 +26,24 @@ export interface CollectedDocument {
   
   // AI 摘要
   summary?: string;
-  summaryGeneratedAt?: Date;
+  summaryGeneratedAt?: string;
   
   // 文件信息
-  wordCount: number;
-  readingTime: number;       // 分钟
+  wordCount?: number;
+  readingTime?: number;       // 分钟
 }
 
 export interface DocumentFolder {
   id: string;
   name: string;
-  parentId?: string;
-  createdAt: Date;
-  documentCount: number;
+  parentId: string | null;
+  createdAt: string;
 }
 
 export interface Tag {
   id: string;
   name: string;
-  color?: string;
-  documentCount: number;
+  color: string;
 }
 
 export interface SearchResult {
