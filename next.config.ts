@@ -1,9 +1,12 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
-  // Tauri 开发模式使用内置服务器
-  // 生产模式通过 Sidecar 运行 Next.js 服务器
+  // Tauri 生产模式使用静态导出
+  output: "export",
+  // 禁用图片优化（静态导出不支持）
+  images: {
+    unoptimized: true,
+  },
 };
 
 export default nextConfig;

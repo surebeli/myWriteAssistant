@@ -1,6 +1,7 @@
 "use client";
 
 import { useAppStore } from "@/stores/app-store";
+import { useSettingsStore } from "@/stores/settings-store";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
@@ -18,6 +19,7 @@ import {
 
 export function Sidebar() {
   const { sidebarOpen, currentView, setCurrentView } = useAppStore();
+  const { workspacePath, openSettingsDialog } = useSettingsStore();
 
   if (!sidebarOpen) return null;
 
@@ -153,9 +155,10 @@ export function Sidebar() {
         <Button
           variant="outline"
           className="w-full justify-start gap-2 text-xs"
+          onClick={() => openSettingsDialog("workspace")}
         >
           <FolderOpen className="h-4 w-4" />
-          <span className="truncate">~/myWriteAssistant-data</span>
+          <span className="truncate">{workspacePath || "未设置工作目录"}</span>
         </Button>
       </div>
     </aside>

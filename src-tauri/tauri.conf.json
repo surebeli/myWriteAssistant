@@ -4,15 +4,14 @@
   "version": "0.5.0",
   "identifier": "com.mywriteassistant.app",
   "build": {
-    "frontendDist": "../public",
+    "frontendDist": "../out",
     "devUrl": "http://localhost:3000",
     "beforeDevCommand": "npm run dev",
-    "beforeBuildCommand": "npm run build && npm run start"
+    "beforeBuildCommand": "npm run build"
   },
   "app": {
     "windows": [
       {
-        "url": "http://localhost:3000",
         "title": "My Write Assistant",
         "width": 1280,
         "height": 800,
