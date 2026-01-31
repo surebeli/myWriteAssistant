@@ -21,21 +21,29 @@ export function WelcomeDialog() {
     workspacePath,
     setWorkspacePath,
     openSettingsDialog,
+    hasHydrated,
   } = useSettingsStore();
 
   const [open, setOpen] = useState(false);
   const [step, setStep] = useState<"welcome" | "workspace">("welcome");
 
   useEffect(() => {
+    if (!hasHydrated) return;
+
     // 只有首次启动且未设置工作目录时才显示欢迎弹窗
     // 如果已经设置过路径，即使是首次启动也不弹窗
     if (isFirstLaunch && !workspacePath) {
       setOpen(true);
-    } else if (isFirstLaunch && workspacePath) {
+      return;
+    }
+
+    if (isFirstLaunch && workspacePath) {
       // 已设置路径，静默标记为非首次启动
       setFirstLaunch(false);
     }
-  }, [isFirstLaunch, workspacePath, setFirstLaunch]);
+
+    setOpen(false);
+  }, [hasHydrated, isFirstLaunch, workspacePath, setFirstLaunch]);
 
   const handleSelectWorkspace = async () => {
     console.log("[WelcomeDialog] handleSelectWorkspace clicked");

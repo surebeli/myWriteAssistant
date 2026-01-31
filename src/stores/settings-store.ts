@@ -12,6 +12,10 @@ interface SettingsState {
   // AI 配置
   aiConfig: AIConfig;
   setAIConfig: (config: Partial<AIConfig>) => void;
+
+  // 持久化完成标记
+  hasHydrated: boolean;
+  setHasHydrated: (value: boolean) => void;
   
   // 工作目录
   workspacePath: string | null;
@@ -45,6 +49,10 @@ export const useSettingsStore = create<SettingsState>()(
       setAIConfig: (config) => set((state) => ({
         aiConfig: { ...state.aiConfig, ...config },
       })),
+
+      // 持久化完成标记
+      hasHydrated: false,
+      setHasHydrated: (value) => set({ hasHydrated: value }),
       
       // 工作目录 - handle 不能持久化，需要重新请求权限
       workspacePath: null,
@@ -76,6 +84,9 @@ export const useSettingsStore = create<SettingsState>()(
         workspacePath: state.workspacePath,
         isFirstLaunch: state.isFirstLaunch,
       }),
+      onRehydrateStorage: () => (state) => {
+        state?.setHasHydrated(true);
+      },
     }
   )
 );
