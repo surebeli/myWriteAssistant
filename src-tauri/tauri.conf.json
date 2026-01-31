@@ -4,15 +4,15 @@
   "version": "0.5.0",
   "identifier": "com.mywriteassistant.app",
   "build": {
-    "frontendDist": "../.next",
+    "frontendDist": "../public",
     "devUrl": "http://localhost:3000",
     "beforeDevCommand": "npm run dev",
-    "beforeBuildCommand": "npm run build"
+    "beforeBuildCommand": "npm run build && npm run start"
   },
   "app": {
-    "withGlobalTauri": true,
     "windows": [
       {
+        "url": "http://localhost:3000",
         "title": "My Write Assistant",
         "width": 1280,
         "height": 800,

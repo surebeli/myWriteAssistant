@@ -3,6 +3,7 @@ use tauri::{
     tray::{MouseButton, MouseButtonState, TrayIconBuilder, TrayIconEvent},
     Manager,
 };
+use std::process::Command;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
@@ -18,6 +19,15 @@ pub fn run() {
                         .level(log::LevelFilter::Info)
                         .build(),
                 )?;
+            } else {
+                // 生产模式：启动 Next.js 服务器（如果尚未运行）
+                // 检查端口 3000 是否已监听
+                if !is_port_in_use(3000) {
+                    let _ = start_nextjs_server();
+                }
+                
+                // 等待服务器启动
+                std::thread::sleep(std::time::Duration::from_secs(2));
             }
 
             // 创建系统托盘
@@ -61,4 +71,16 @@ pub fn run() {
         })
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
+}
+
+/// 检查端口是否被占用
+fn is_port_in_use(port: u16) -> bool {
+    std::net::TcpListener::bind(("127.0.0.1", port)).is_err()
+}
+
+/// 启动 Next.js 生产服务器
+fn start_nextjs_server() -> std::io::Result<std::process::Child> {
+    Command::new("npm")
+        .args(&["run", "start"])
+        .spawn()
 }
