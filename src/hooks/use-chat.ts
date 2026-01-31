@@ -1,13 +1,17 @@
 "use client";
 
 import { useCallback, useRef } from "react";
-import { useAIStore, type ChatMessage } from "@/stores/ai-store";
+import { useAIStore } from "@/stores/ai-store";
+import { smartMatchMaterials, shouldMatchMaterials } from "@/lib/material-matcher";
 
 interface UseChatOptions {
   onError?: (error: Error) => void;
+  enableMaterialMatching?: boolean;
 }
 
 export function useChat(options: UseChatOptions = {}) {
+  const { enableMaterialMatching = true } = options;
+  
   const messages = useAIStore((s) => s.chat.messages);
   const isStreaming = useAIStore((s) => s.chat.isStreaming);
   const streamingContent = useAIStore((s) => s.chat.streamingContent);
@@ -22,7 +26,7 @@ export function useChat(options: UseChatOptions = {}) {
 
   // 发送消息
   const sendMessage = useCallback(
-    async (content: string, context?: string) => {
+    async (content: string, providedContext?: string) => {
       if (!content.trim() || isStreaming) return;
 
       // 添加用户消息
@@ -33,6 +37,17 @@ export function useChat(options: UseChatOptions = {}) {
       
       setStreaming(true);
       setStreamingContent("");
+
+      // 智能素材匹配
+      let context = providedContext;
+      if (!context && enableMaterialMatching && shouldMatchMaterials(content)) {
+        try {
+          const { context: matchedContext } = await smartMatchMaterials(content);
+          context = matchedContext;
+        } catch (error) {
+          console.warn("Material matching failed:", error);
+        }
+      }
 
       // 准备消息历史
       const chatMessages: { role: "user" | "assistant"; content: string }[] = [
