@@ -12,6 +12,7 @@ import CodeBlockLowlight from "@tiptap/extension-code-block-lowlight";
 import { common, createLowlight } from "lowlight";
 import { useEffect, useRef } from "react";
 import { EditorContent } from "./editor-content";
+import { EditorToolbar } from "./editor-toolbar";
 import { useEditorStore } from "@/stores/editor-store";
 
 // Create lowlight instance with common languages
@@ -100,8 +101,11 @@ export function TiptapEditor({
   }, []);
 
   return (
-    <div className="w-full">
-      <EditorContent editor={editor} />
+    <div className="w-full border rounded-lg overflow-hidden">
+      <EditorToolbar editor={editor} />
+      <div className="p-4">
+        <EditorContent editor={editor} />
+      </div>
     </div>
   );
 }
