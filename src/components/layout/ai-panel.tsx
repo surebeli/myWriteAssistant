@@ -1,10 +1,14 @@
 "use client";
 
+import { useCallback } from "react";
 import { useAppStore } from "@/stores/app-store";
+import { useAIStore, type AssistantMode } from "@/stores/ai-store";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Sparkles, Send, Check, X, Pencil } from "lucide-react";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Sparkles, Check, X, Pencil, MessageSquare, Wand2 } from "lucide-react";
+import { ChatPanel as ChatPanelComponent } from "@/components/ai/chat-panel";
+import { useEditorContext } from "@/components/editor/editor-context";
 
 function ProactivePanel() {
   return (
@@ -53,77 +57,58 @@ function ProactivePanel() {
       {/* Status */}
       <div className="p-3 border-t text-center">
         <span className="text-xs text-muted-foreground">
-          Proactive 模式已启用
+          Proactive 模式已启用 (即将推出)
         </span>
       </div>
     </div>
   );
 }
 
-function ChatPanel() {
-  return (
-    <div className="flex flex-col h-full">
-      {/* Messages */}
-      <ScrollArea className="flex-1 p-4">
-        <div className="space-y-4">
-          {/* User message */}
-          <div className="flex justify-end">
-            <div className="bg-primary text-primary-foreground rounded-lg rounded-br-none px-3 py-2 max-w-[80%]">
-              <p className="text-sm">帮我生成一个关于 AI 发展趋势的写作大纲</p>
-            </div>
-          </div>
+function ChatPanelWrapper() {
+  const { editor } = useEditorContext();
+  
+  const handleInsertToEditor = useCallback((content: string) => {
+    if (editor) {
+      editor.commands.insertContent(content);
+      editor.commands.focus();
+    }
+  }, [editor]);
 
-          {/* AI message */}
-          <div className="flex justify-start">
-            <div className="bg-muted rounded-lg rounded-bl-none px-3 py-2 max-w-[80%]">
-              <p className="text-sm">
-                好的，根据你的收藏素材，我为你生成以下大纲：
-              </p>
-              <div className="mt-2 text-sm space-y-1">
-                <p>## AI 发展趋势</p>
-                <p>1. 技术演进</p>
-                <p>2. 应用场景</p>
-                <p>3. 未来展望</p>
-              </div>
-              <div className="flex gap-2 mt-3">
-                <Button size="sm" variant="secondary" className="text-xs">
-                  插入到编辑器
-                </Button>
-                <Button size="sm" variant="ghost" className="text-xs">
-                  复制
-                </Button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </ScrollArea>
-
-      {/* Input */}
-      <div className="p-3 border-t">
-        <form className="flex gap-2">
-          <Input
-            placeholder="输入消息…"
-            className="flex-1"
-            aria-label="聊天输入"
-          />
-          <Button type="submit" size="icon" aria-label="发送">
-            <Send className="h-4 w-4" />
-          </Button>
-        </form>
-      </div>
-    </div>
-  );
+  return <ChatPanelComponent onInsertToEditor={handleInsertToEditor} />;
 }
 
 export function AIPanel() {
-  const { aiPanelOpen, assistantMode } = useAppStore();
+  const { aiPanelOpen } = useAppStore();
+  const mode = useAIStore((s) => s.mode);
+  const setMode = useAIStore((s) => s.setMode);
 
   if (!aiPanelOpen) return null;
 
+  const handleModeChange = (value: string) => {
+    setMode(value as AssistantMode);
+  };
+
   return (
     <aside className="w-[360px] border-l bg-muted/30 flex flex-col">
-      <div className="h-full">
-        {assistantMode === "proactive" ? <ProactivePanel /> : <ChatPanel />}
+      {/* Mode Tabs */}
+      <div className="p-2 border-b">
+        <Tabs value={mode} onValueChange={handleModeChange} className="w-full">
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="chat" className="gap-1.5 text-xs">
+              <MessageSquare className="h-3.5 w-3.5" />
+              Chat
+            </TabsTrigger>
+            <TabsTrigger value="proactive" className="gap-1.5 text-xs">
+              <Wand2 className="h-3.5 w-3.5" />
+              Proactive
+            </TabsTrigger>
+          </TabsList>
+        </Tabs>
+      </div>
+      
+      {/* Panel Content */}
+      <div className="flex-1 overflow-hidden">
+        {mode === "proactive" ? <ProactivePanel /> : <ChatPanelWrapper />}
       </div>
     </aside>
   );

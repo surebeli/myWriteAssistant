@@ -23,7 +23,8 @@ export function EditorProvider({ children }: { children: ReactNode }) {
 export function useEditorContext() {
   const context = useContext(EditorContext);
   if (!context) {
-    throw new Error("useEditorContext must be used within an EditorProvider");
+    // 返回一个空的上下文，用于非编辑器页面
+    return { editor: null, setEditor: () => {} };
   }
   return context;
 }
