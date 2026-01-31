@@ -672,6 +672,17 @@ const acceptSuggestion = () => {
 | 2 | **Editor - Chat Mode** | 编辑器界面，AI Chat 对话模式 | `510fb128df934cca828307ebbc2b558e` |
 | 3 | **Document Library Grid** | 文档库网格视图 | `862c2211d67b490899ce9e732f7edfeb` |
 | 4 | **Dark Mode - Proactive** | 深色模式编辑器界面 | `d34ae9b20702461eb205323152cef668` |
+| 5 | **Import Document Modal** | 文档导入流程（URL/上传/粘贴） | `6cb802dbb9f64bc5b49525a33bb38352` |
+| 6 | **Document Detail & Summary** | 文档详情页，AI 摘要/要点/脑图 | `0fa0e70517d14f92bc256ce6b7733331` |
+| 7 | **Empty State - Library** | 空状态：无文档收藏 | `13b8647e252041e5aa687373062de7de` |
+| 8 | **Empty State - Drafts** | 空状态：无草稿 | `3001ab3eef4146b48864c4a71e261110` |
+| 9 | **Empty State - Search** | 空状态：搜索无结果 | `db9764e4a0b241e791bf2b0da6cdddef` |
+| 10 | **Settings Panel** | 设置面板（AI/Proactive/外观/存储） | `9b608e1bbb994de9b2da5d1c9a240154` |
+| 11 | **Proactive - Analyzing** | Proactive 状态：正在分析 | `fa19367486aa486e81b5985d5a14182f` |
+| 12 | **Proactive - Generating** | Proactive 状态：生成建议中 | `fac50f87b78043fb958c72c26635fb22` |
+| 13 | **Proactive - Ready** | Proactive 状态：建议就绪 | `f6f11c7094d344a0b421091f687b3bd0` |
+| 14 | **Proactive - Clear** | Proactive 状态：无需修改 | `a30bb74b78314449b198f9e7aa3d81f1` |
+| 15 | **Related Materials** | 相关素材推荐交互 | `bbfddf08fff34fa281a2880bfdc8e9e9` |
 
 ### 设计规范
 
