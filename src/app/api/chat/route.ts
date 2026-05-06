@@ -1,5 +1,8 @@
 import { streamText } from "ai";
 import { createOpenAI } from "@ai-sdk/openai";
+import { getAdapter } from "@/lib/ai/registry";
+import { callAdapter } from "@/lib/ai/route-helpers";
+import type { AIProviderConfig, CoreMessage } from "@/lib/ai/types";
 
 // 创建豆包 API 客户端（OpenAI 兼容格式）
 const doubao = createOpenAI({
@@ -28,18 +31,27 @@ interface ChatMessage {
 }
 
 interface ChatRequest {
-  messages: ChatMessage[];
+  messages: CoreMessage[];
   context?: string;  // 相关素材上下文
+  providerConfig?: AIProviderConfig;
+  requestId?: string;
 }
 
 export async function POST(req: Request) {
   try {
-    const { messages, context }: ChatRequest = await req.json();
+    const { messages, context, providerConfig }: ChatRequest = await req.json();
 
     // 构建系统提示词
     let systemPrompt = SYSTEM_PROMPT;
     if (context) {
       systemPrompt += `\n\n以下是用户收藏的相关素材，请根据这些素材回答问题：\n\n${context}`;
+    }
+
+    if (providerConfig) {
+      const adapter = getAdapter(providerConfig.id);
+      const result = await callAdapter(adapter, providerConfig, systemPrompt, messages);
+
+      return result.toTextStreamResponse();
     }
 
     const result = streamText({
