@@ -22,7 +22,7 @@ Anchor: `.hopper/queue.md::root`
 | T14-spike | builder | pending |  | Tauri secure storage plugin 调研（半天，**仅出 spike 文档不动代码**）|
 | T02 | builder | done | T01, T17 | Doubao adapter + chat/proactive route refactor + error sanitizer |
 | T05 | builder-ui (+ builder pair on wiring) | pending | T03, T17 | Settings AI UI + 接通 `resolveProviderConfig` + 空状态引导 |
-| T04 | builder | pending | T02, T03, T13 | Claude adapter（capability/extractUsage/normalizeError 完整）|
+| T04 | builder | in-progress | T02, T03, T13 | Claude adapter（capability/extractUsage/normalizeError 完整）|
 | T18a | builder | pending | T03 | Migration bridge：Next API + Tauri command 读取 legacy DOUBAO env（不返完整 key）|
 | T18b | builder-ui | pending | T18a, T03 | 首启 migration dialog UI + 空状态引导组件（调 T18a bridge）|
 | T15 | critic | pending | T01, T02, T03, T04 | PR diff adversarial review batch 1（出 `critic-T01-T04.md`）|
@@ -35,7 +35,7 @@ Anchor: `.hopper/queue.md::root`
 | T10 | builder-ui | pending | T09 | Cost dashboard 三 table 视图（无图表 / 无 override / 无导出）|
 | T12 | executor-1 | pending | T09 | message bubble 加 `producedBy` 标注 |
 | T16 | critic | pending | T09, T10 | PR diff review batch 2（cost dashboard，出 `critic-T09-T10.md`）|
-| T-EXE-1 | executor-1 | pending | T01 | 🔬 [validation-only] 给 src/lib/ai/ public exports 加 JSDoc 注释（不改 logic；tsc 仍过）|
+| T-EXE-1 | executor-1 | done | T01 | 🔬 [validation-only] 给 src/lib/ai/ public exports 加 JSDoc 注释（不改 logic；tsc 仍过）|
 | T-EXE-2 | executor-2 | done | T01 | 🔬 [validation-only] README.md 加 "AI provider abstraction (v0.2 进行中)" 小节（15-30 行，不动现有段落）|
 
 ---
@@ -62,3 +62,6 @@ Anchor: `.hopper/queue.md::root`
 - T-EXE-2 done at 2026-05-06T?? — Added "AI provider abstraction (v0.2 进行中)" section to README.md (17 lines, 5 providers, design doc link)
 - T02 started at 2026-05-06T18:43:34.5341756+08:00 by builder (GPT-5.5 Codex)
 - T02 done at 2026-05-06T19:02:05.7088050+08:00 — Added Doubao adapter, refactored chat/proactive routes through callAdapter, sanitized errors, and covered route dispatch tests
+- T-EXE-1 started at 2026-05-06T22:48:33.585640+08:00 by executor-1 (Kimi 2.6)
+- T-EXE-1 done at 2026-05-06T22:53:00.0000000+08:00 — Added JSDoc comments to all public exports in src/lib/ai/ (8 files, ~80 comment lines); tsc baseline verified; zero logic changes
+- T04 started at 2026-05-06T22:49:02.2169692+08:00 by builder (GPT-5.5 Codex)

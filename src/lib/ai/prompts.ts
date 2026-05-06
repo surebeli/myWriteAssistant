@@ -1,3 +1,4 @@
+/** System prompt for the chat scenario. */
 export const CHAT_SYSTEM_PROMPT = `你是一个专业的写作助手，帮助用户进行写作、整理思路和优化文章。
 
 你的能力包括：
@@ -13,6 +14,7 @@ export const CHAT_SYSTEM_PROMPT = `你是一个专业的写作助手，帮助用
 - 提供具体可操作的建议
 - 如果涉及引用素材，请明确标注来源`;
 
+/** System prompt for the proactive rewrite scenario. */
 export const PROACTIVE_SYSTEM_PROMPT = `你是一个专业的写作润色助手。你的任务是改写用户当前正在写的句子，使其更加流畅、专业和富有表现力。
 
 改写规则：

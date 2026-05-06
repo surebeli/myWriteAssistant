@@ -1,5 +1,6 @@
 import type { AIProviderId } from "./types";
 
+/** Pricing record for a specific provider + model pair. */
 export interface AIModelPricing {
   provider: AIProviderId;
   model: string;
@@ -8,8 +9,14 @@ export interface AIModelPricing {
   effectiveDate: string;
 }
 
+/** In-memory catalog of known model pricing (populated at runtime). */
 export const MODEL_PRICING: AIModelPricing[] = [];
 
+/**
+ * Estimate the USD cost of a call from token counts and known pricing.
+ * @param params - Provider, model, and token counts.
+ * @returns Estimated USD cost, or undefined if pricing is unknown.
+ */
 export function estimateUsd(params: {
   provider: AIProviderId;
   model: string;

@@ -3,6 +3,7 @@ import { keyStorage } from "./key-storage";
 import { getAdapter } from "./registry";
 import { useSettingsStore } from "../../stores/settings-store";
 
+/** Thrown when a provider has no API key configured. */
 export class MissingProviderConfigError extends Error {
   constructor(public providerId: AIProviderId) {
     super(`No API key configured for provider: ${providerId}`);
@@ -10,6 +11,12 @@ export class MissingProviderConfigError extends Error {
   }
 }
 
+/**
+ * Resolve the active provider configuration for a given scenario.
+ * @param scenario - The AI scenario (chat or proactive).
+ * @returns Fully resolved provider configuration.
+ * @throws {MissingProviderConfigError} If the API key is missing.
+ */
 export async function resolveProviderConfig(scenario: AIScenario): Promise<AIProviderConfig> {
   const settings = useSettingsStore.getState().ai;
   const scenarioConfig =
@@ -30,6 +37,7 @@ export async function resolveProviderConfig(scenario: AIScenario): Promise<AIPro
   };
 }
 
+/** Generate a unique request ID for tracing a single AI call. */
 export function generateRequestId(): string {
   return globalThis.crypto?.randomUUID?.() ?? `${Date.now()}-${Math.random().toString(36).slice(2)}`;
 }
