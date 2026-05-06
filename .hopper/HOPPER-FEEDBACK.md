@@ -94,6 +94,27 @@ dogfood 过程沉淀的洞察，分三类：
 - **Action**: llm-hopper Leader prompt 加 reminder "每个 acceptance 必须 scope-qualify：whole repo / new files only / specific paths"
 - **Upstream status**: 🤔 待第二次出现再确认是规律
 
+### P7. Parallel session WIP 文件泄漏（重要）
+
+- **Trigger**: T04 Builder Codex 与 T-EXE-1 Kimi 并行跑（Path B）。Builder 在 T04 早期写了 `tests/unit/claude-adapter.test.ts`（test 文件先写好）但还没 git add；Kimi T-EXE-1 在自己 session 跑 `tsc --noEmit` 时，tsconfig include 仍然把这个 untracked 文件编译，因找不到 `claude-adapter` 实现而报错
+- **Insight**: 多 session 共享同一 working directory（即使是不同 git branch 也是同一磁盘 working tree）→ 一方的未 commit WIP 会污染另一方的 acceptance check。这是 PING v3 没考虑过的并发面
+- **Affects**: 任何 Executor / Critic 的"verify with tsc / npm test / lint"acceptance step 都可能拿到 Builder 的 WIP 错误
+- **Mitigation 选项**:
+  - (a) 协议层：PING.md 加约定，Worker 在 Step 5 期间产生的 WIP 文件如不能立即过 tsc，必须 (i) 暂存到 `tests/_wip/` 或 (ii) 加进 `.gitignore` 局部段，commit 时再 unstash/restore
+  - (b) 工具层：建议每个 Worker session 用独立 git worktree (`git worktree add ../proj-builder feat/hopper-dogfood`)；磁盘多但隔离强
+  - (c) 接受层：Executor acceptance 改为"自己 touched 文件 tsc 通过"而非"全 repo tsc 通过"
+- **推荐**: (c) 最小代价——更新 PING.md Step 6 的"sanity check"措辞，明示 acceptance scope 限定本任务文件。本质是 P3 (acceptance scope-qualify) 的具体化
+- **Upstream status**: ⏳ 升级到 (A) 类待 sync——这是**真实生产场景下的并发 dogfood 信号**，必须吸收进协议
+
+### O6. split-commit (P6) 是 LLM-specific idiom 不是协议涌现
+
+- T13 Builder (GPT-5.5 Codex) → 单 commit + "Pending Step 9" 占位
+- T17 Builder (GPT-5.5 Codex) → 单 commit + 占位
+- T-EXE-2 Executor-2 (DeepSeek-V4-Flash) → **split-commit**（main + fill SHA follow-up）
+- T-EXE-1 Executor-1 (Kimi 2.6) → 单 commit + 占位
+- **结论**: split-commit 是 DeepSeek 独有的优雅 idiom，不是普适涌现行为。**P6 保留为软建议（best practice 文档），不升级为 PING.md 强制**——避免 over-prescribe
+- **Essay 角度**: 不同 LLM 在协议未明示的场景下产生不同 idioms——这本身证明协议是"路径而非脚本"，留出 LLM 智力创造空间
+
 ### P6. Self-reference issue 的 split-commit 解法（DeepSeek-V4-Flash 创造）
 
 - **Trigger**: T-EXE-2 review 时发现 DeepSeek 主动用 split commit 处理"output.md 的 Commit 段在 Step 9 之前没法填真 SHA"问题——`9bd88f7` 主 commit 含 output.md（SHA 占位）+ 紧接 `7077155 [T-EXE-2] fill commit SHA in output artifact` 回填真 SHA
