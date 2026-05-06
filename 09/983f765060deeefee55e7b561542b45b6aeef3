@@ -1,0 +1,32 @@
+.hopper/PING.md
+  s_d314ccd8ad8e10::t_c1429b82f94ae0 11-12,18-23,28
+  s_d314ccd8ad8e10::t_c7ca45c352b777 94-139
+  s_d314ccd8ad8e10::t_7cbbfed13de72b 318-324
+  s_d314ccd8ad8e10::t_51e27e2e02e82c 224-298
+  s_d314ccd8ad8e10::t_d7f8675e9b075c 175
+.hopper/HOPPER-FEEDBACK.md
+  s_d314ccd8ad8e10::t_8a6ee3c9dd3d1a 136-143
+  s_d314ccd8ad8e10::t_e00ecb9cc3c331 40-50
+.hopper/handoffs/T03-output.md
+  s_d314ccd8ad8e10::t_560fa957b50782 1-50
+.hopper/handoffs/T01-output.md
+  s_d314ccd8ad8e10::t_4ffe9c0dca92d6 1-51
+.hopper/templates/builder-output.md
+  s_d314ccd8ad8e10::t_ec913bd2286913 1-50
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.1",
+  "base_commit_sha": "09983f765060deeefee55e7b561542b45b6aeef3",
+  "prompts": {},
+  "sessions": {
+    "s_d314ccd8ad8e10": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "950fe3e5-0fa8-493d-bfb7-1c5aeb45f933",
+        "model": "claude-opus-4-7"
+      },
+      "human_author": "litianyi <litianyi@corp.netease.com>"
+    }
+  }
+}
