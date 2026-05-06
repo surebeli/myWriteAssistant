@@ -94,6 +94,23 @@ dogfood 过程沉淀的洞察，分三类：
 - **Action**: llm-hopper Leader prompt 加 reminder "每个 acceptance 必须 scope-qualify：whole repo / new files only / specific paths"
 - **Upstream status**: 🤔 待第二次出现再确认是规律
 
+### P6. Self-reference issue 的 split-commit 解法（DeepSeek-V4-Flash 创造）
+
+- **Trigger**: T-EXE-2 review 时发现 DeepSeek 主动用 split commit 处理"output.md 的 Commit 段在 Step 9 之前没法填真 SHA"问题——`9bd88f7` 主 commit 含 output.md（SHA 占位）+ 紧接 `7077155 [T-EXE-2] fill commit SHA in output artifact` 回填真 SHA
+- **Insight**: T13 / T17 的 Builder 用"Pending Step 9 atomic commit"占位 + Step 10 Report 给真 SHA；这个方案 OK 但 output.md **永远带占位**，未来 scan 不直接看到 SHA。DeepSeek 的 split commit 让 output.md 永久带真 SHA，可读性显著更好
+- **Cost**: 多 1 个 atomic commit；trade-off 是清晰度 > 数量
+- **Action**: 升级为 (A) 类 patch 候选——PING.md Step 7.5 可加 "Recommended pattern: split commit for SHA backfill"；但要在更多 task 验证后再钉死，避免过早 over-prescribe
+- **Status**: 🤔 待 T-EXE-1（Kimi）跑完看是否独立想到同样模式（强信号）or 用占位（弱信号）；决定是否升级为协议要求
+
+### O5. 跨家 cost 200x 差距是 dogfood thesis 的硬证据（essay 素材）
+
+- 同周期同量级"小篇幅文档/注释"任务：
+  - GPT-5.5 Codex (Builder T13/T17)：~$0.20-0.25
+  - DeepSeek-V4-Flash (Executor-2 T-EXE-2)：~$0.001
+- **200x 价差**，质量对位（内容技术准确、协议遵循度好、output.md 比 Builder 还规整）
+- 这是"vendor-agnostic + cost-aware routing"卖点的活体证据——单家锁死的用户每月在简单文档/注释任务上多花至少 50-200x
+- essay 角度：直接用 COST-LOG.md 的真实表格做对比图
+
 ### P5. Test infrastructure 跨 task 边界泄漏
 
 - **Trigger**: T03 acceptance 含 "单测覆盖 simple/advanced 两 mode"，Builder 必须装 vitest 才能写测试。结果 T03 实际触碰了 `vitest.config.ts` + `package.json` + 写了真 test 文件——这本来是 T17 (test scaffolding) 的 scope
