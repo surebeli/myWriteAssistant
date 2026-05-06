@@ -1,0 +1,23 @@
+.hopper/PING.md
+  s_d314ccd8ad8e10::t_588f3f124d4386 85,88-91,94-96
+  s_d314ccd8ad8e10::t_107c462b7765f5 315-317,319-327
+  s_d314ccd8ad8e10::t_2f9a64b40d2d0f 347-348
+  s_d314ccd8ad8e10::t_9994677a020f58 28
+  s_d314ccd8ad8e10::t_75d22de038b6a2 38-48
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.1",
+  "base_commit_sha": "a7c68d1b319a41ed7dc6e9c4b281f9f1d02d2488",
+  "prompts": {},
+  "sessions": {
+    "s_d314ccd8ad8e10": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "950fe3e5-0fa8-493d-bfb7-1c5aeb45f933",
+        "model": "claude-opus-4-7"
+      },
+      "human_author": "litianyi <litianyi@corp.netease.com>"
+    }
+  }
+}
