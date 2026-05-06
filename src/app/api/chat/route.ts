@@ -2,6 +2,7 @@ import { getAdapter } from "@/lib/ai/registry";
 import { CHAT_SYSTEM_PROMPT } from "@/lib/ai/prompts";
 import {
   callAdapter,
+  createDataStreamResponse,
   createMissingProviderConfigResponse,
   createProviderErrorResponse,
   generateRequestId,
@@ -40,7 +41,7 @@ export async function POST(req: Request) {
     adapter = getAdapter(providerConfig.id);
     const result = await callAdapter(adapter, providerConfig, systemPrompt, messages);
 
-    return result.toTextStreamResponse();
+    return createDataStreamResponse(result);
   } catch (error) {
     const provider = providerConfig?.id ?? "unknown";
     const normalized = adapter?.normalizeError(error) ?? {

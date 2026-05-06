@@ -37,7 +37,7 @@ Anchor: `.hopper/queue.md::root`
 | T16 | critic | pending | T09, T10 | PR diff review batch 2（cost dashboard，出 `critic-T09-T10.md`）|
 | T-EXE-1 | executor-1 | done | T01 | 🔬 [validation-only] 给 src/lib/ai/ public exports 加 JSDoc 注释（不改 logic；tsc 仍过）|
 | T-EXE-2 | executor-2 | done | T01 | 🔬 [validation-only] README.md 加 "AI provider abstraction (v0.2 进行中)" 小节（15-30 行，不动现有段落）|
-| T02-rework | builder | pending | T02 | **[REWORK from Critic T15]** wire resolveProviderConfig 进 use-chat + use-proactive；同时 fix proactive bare error 到 sanitized contract |
+| T02-rework | builder | done | T02 | **[REWORK from Critic T15]** wire resolveProviderConfig 进 use-chat + use-proactive；同时 fix proactive bare error 到 sanitized contract |
 | T-OPENAI | builder | pending | T04, T13 | **[REWORK from Critic T15]** OpenAI adapter（registry-only，同 Kimi/DeepSeek 模式；填补 5-stable 缺口）|
 | T-SANITIZER-FIX | builder | pending | T02 | **[REWORK from Critic T15]** 扩展 sanitizer regex（bare sk-.../sk-ant-.../whitespace label/x-api-key forms）+ 统一所有 adapter normalizeError 走共享函数 |
 
@@ -71,3 +71,5 @@ Anchor: `.hopper/queue.md::root`
 - T04 done at 2026-05-06T23:04:47.9577727+08:00 — Added Claude adapter, registered Anthropic provider package, verified build/type/tests, and smoke command integration
 - T15 started at 2026-05-06T23:44:08.6939035+08:00 by critic (GPT-5.5 Codex)
 - T15 done at 2026-05-06T23:54:59.1143211+08:00 — Wrote adversarial review for T01-T04 batch; verdict REWORK before independent landing
+- T02-rework started at 2026-05-07T00:46:56.2375729+08:00 by builder (GPT-5.5 Codex)
+- T02-rework done at 2026-05-07T02:53:44.5853785+08:00 — Wired resolveProviderConfig/requestId into use-chat & use-proactive; sanitized proactive missing-sentence error; folded 2 manual-verify fixes (Doubao .chat() routing + stream protocol encoder for ai@6 lacking toDataStreamResponse)

@@ -24,8 +24,19 @@ export function createMockAdapter(overrides: Partial<AIAdapter> = {}): AIAdapter
 
 export function createMockTextStreamResult(text = "mock response") {
   return {
+    fullStream: (async function* () {
+      yield {
+        type: "text-delta",
+        text,
+      };
+    })(),
     toTextStreamResponse: () =>
       new Response(text, {
+        status: 200,
+        headers: { "content-type": "text/plain; charset=utf-8" },
+      }),
+    toDataStreamResponse: () =>
+      new Response(`0:${JSON.stringify(text)}\n`, {
         status: 200,
         headers: { "content-type": "text/plain; charset=utf-8" },
       }),

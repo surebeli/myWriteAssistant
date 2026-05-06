@@ -3,6 +3,7 @@
 import { useCallback, useRef } from "react";
 import { useAIStore } from "@/stores/ai-store";
 import { smartMatchMaterials, shouldMatchMaterials } from "@/lib/material-matcher";
+import { generateRequestId, resolveProviderConfig } from "@/lib/ai/request-assembly";
 
 interface UseChatOptions {
   onError?: (error: Error) => void;
@@ -57,11 +58,16 @@ export function useChat(options: UseChatOptions = {}) {
 
       try {
         abortControllerRef.current = new AbortController();
+        const requestId = generateRequestId();
+        const providerConfig = await resolveProviderConfig("chat");
 
         const response = await fetch("/api/chat", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
+            providerConfig,
+            requestId,
+            scenario: "chat",
             messages: chatMessages,
             context,
           }),

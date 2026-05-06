@@ -60,7 +60,7 @@ describe("POST /api/chat", () => {
       })
       .expect(200);
 
-    expect(response.text).toBe("mock response");
+    expect(response.text).toBe("0:\"mock response\"\n");
     expect(getAdapterMock).toHaveBeenCalledWith("claude");
     expect(callAdapterMock).toHaveBeenCalledTimes(1);
     expect(callAdapterMock.mock.calls[0][0]).toBe(mockAdapter);

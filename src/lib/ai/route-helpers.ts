@@ -67,6 +67,42 @@ export function createMissingProviderConfigResponse(requestId: string): Response
   );
 }
 
+/**
+ * Create the legacy Vercel AI data stream response consumed by the current hooks.
+ * `ai@6` exposes UI message streams, so this keeps the existing `0:"text"` client protocol explicit.
+ */
+export function createDataStreamResponse(
+  result: { fullStream: AsyncIterable<{ type: string; text?: string }> },
+  init?: ResponseInit,
+): Response {
+  const encoder = new TextEncoder();
+  const stream = new ReadableStream<Uint8Array>({
+    async start(controller) {
+      try {
+        for await (const part of result.fullStream) {
+          if (part.type === "text-delta" && typeof part.text === "string") {
+            controller.enqueue(encoder.encode(`0:${JSON.stringify(part.text)}\n`));
+          }
+        }
+
+        controller.close();
+      } catch (error) {
+        controller.error(error);
+      }
+    },
+  });
+
+  const headers = new Headers(init?.headers);
+  if (!headers.has("content-type")) {
+    headers.set("content-type", "text/plain; charset=utf-8");
+  }
+
+  return new Response(stream, {
+    ...init,
+    headers,
+  });
+}
+
 /** Strip sensitive tokens (Bearer, API keys, Authorization) from an error message. */
 export function sanitizeErrorMessage(message: string): string {
   return message

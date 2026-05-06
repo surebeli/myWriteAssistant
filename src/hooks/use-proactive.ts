@@ -2,6 +2,7 @@
 
 import { useCallback, useRef } from "react";
 import { useAIStore } from "@/stores/ai-store";
+import { generateRequestId, resolveProviderConfig } from "@/lib/ai/request-assembly";
 
 interface UseProactiveOptions {
   onError?: (error: Error) => void;
@@ -54,11 +55,19 @@ export function useProactive(options: UseProactiveOptions = {}) {
 
       try {
         abortControllerRef.current = new AbortController();
+        const requestId = generateRequestId();
+        const providerConfig = await resolveProviderConfig("proactive");
 
         const response = await fetch("/api/proactive", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ sentence, context }),
+          body: JSON.stringify({
+            providerConfig,
+            requestId,
+            scenario: "proactive",
+            sentence,
+            context,
+          }),
           signal: abortControllerRef.current.signal,
         });
 
@@ -113,6 +122,7 @@ export function useProactive(options: UseProactiveOptions = {}) {
         options.onError?.(error instanceof Error ? error : new Error("Unknown error"));
       } finally {
         setProactiveGenerating(false);
+        abortControllerRef.current = null;
       }
     },
     [cancelGeneration, options, setProactiveGenerating, setSuggestion]

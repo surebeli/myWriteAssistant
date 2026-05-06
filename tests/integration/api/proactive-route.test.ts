@@ -60,7 +60,7 @@ describe("POST /api/proactive", () => {
       })
       .expect(200);
 
-    expect(response.text).toBe("rewritten sentence");
+    expect(response.text).toBe("0:\"rewritten sentence\"\n");
     expect(getAdapterMock).toHaveBeenCalledWith("kimi");
     expect(callAdapterMock).toHaveBeenCalledTimes(1);
     expect(callAdapterMock.mock.calls[0][0]).toBe(mockAdapter);
@@ -71,5 +71,34 @@ describe("POST /api/proactive", () => {
         content: "以下是文章的上下文：\n\n前文上下文\n\n请根据上下文风格改写以下句子：\n\n\"这句话需要润色\"",
       },
     ]);
+  });
+
+  test("returns sanitized error contract when sentence is missing", async () => {
+    const { POST } = await import("../../../src/app/api/proactive/route");
+    const server = createNextRouteServer(POST);
+
+    const response = await request(server)
+      .post("/api/proactive")
+      .send({
+        providerConfig: {
+          id: "kimi",
+          apiKey: "sk-test",
+          model: "kimi-model",
+        },
+        scenario: "proactive",
+        requestId: "req-missing-sentence",
+        sentence: "",
+      })
+      .expect(400);
+
+    expect(response.body).toEqual({
+      error: {
+        code: "missing_sentence",
+        provider: "kimi",
+        requestId: "req-missing-sentence",
+        message: "Sentence is required",
+      },
+    });
+    expect(callAdapterMock).not.toHaveBeenCalled();
   });
 });

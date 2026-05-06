@@ -2,6 +2,7 @@ import { getAdapter } from "@/lib/ai/registry";
 import { PROACTIVE_SYSTEM_PROMPT } from "@/lib/ai/prompts";
 import {
   callAdapter,
+  createDataStreamResponse,
   createMissingProviderConfigResponse,
   createProviderErrorResponse,
   generateRequestId,
@@ -32,7 +33,15 @@ export async function POST(req: Request) {
     }
 
     if (!sentence?.trim()) {
-      return Response.json({ error: "Sentence is required" }, { status: 400 });
+      return createProviderErrorResponse(
+        {
+          code: "missing_sentence",
+          message: "Sentence is required",
+        },
+        providerConfig.id,
+        requestId,
+        400,
+      );
     }
 
     // 构建提示词
@@ -46,7 +55,7 @@ export async function POST(req: Request) {
     const messages: CoreMessage[] = [{ role: "user", content: userPrompt }];
     const result = await callAdapter(adapter, providerConfig, PROACTIVE_SYSTEM_PROMPT, messages);
 
-    return result.toTextStreamResponse();
+    return createDataStreamResponse(result);
   } catch (error) {
     const provider = providerConfig?.id ?? "unknown";
     const normalized = adapter?.normalizeError(error) ?? {

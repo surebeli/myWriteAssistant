@@ -22,7 +22,7 @@ export const doubaoAdapter: AIAdapter = {
       baseURL: config.baseURL ?? DEFAULT_BASE_URL,
     });
 
-    return provider(config.model);
+    return provider.chat(config.model);
   },
   prepareMessages: (system: string | undefined, messages: CoreMessage[]) => ({
     system: undefined,
