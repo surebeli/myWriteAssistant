@@ -19,7 +19,7 @@ Added a 17-line "AI Provider 抽象层（v0.2 进行中）" section to README.md
 none
 
 ## Commit
-<will be filled after Step 9>
+9bd88f7 "[T-EXE-2] README.md add AI provider abstraction (v0.2 进行中) section"
 
 ## Next recommendation
 T-EXE-1 — 同为 validation-only 任务，由 executor-1 执行。完成后建议 Leader `review` 两条 validation task 验证 v3 review 协议。
