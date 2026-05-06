@@ -17,7 +17,7 @@ Anchor: `.hopper/queue.md::root`
 | critic-v1 | critic | done |  | Re-review spec v1 + tasklist v1（出 `.hopper/handoffs/day2-critic-spec-review-v1.md`，prompt 在 `.hopper/prompts/critic-day2-spec-review.md`）|
 | T01 | builder | done |  | `src/lib/ai/` 抽象层骨架（types/registry/prompts/pricing/key-storage/request-assembly/route-helpers + adapters/ 占位）|
 | T17 | builder | pending | T01 | API route 集成测试 scaffolding（vitest + supertest，1 条 sanity 测试）|
-| T03 | builder | pending | T01 | Settings store v0.2 schema + key-storage Web 实装 + `resolveProviderConfig` |
+| T03 | builder | done | T01 | Settings store v0.2 schema + key-storage Web 实装 + `resolveProviderConfig` |
 | T13 | builder | pending | T01 | Provider smoke script（支持 `--only=<id>`）|
 | T14-spike | builder | pending |  | Tauri secure storage plugin 调研（半天，**仅出 spike 文档不动代码**）|
 | T02 | builder | pending | T01, T17 | Doubao adapter + chat/proactive route refactor + error sanitizer |
@@ -48,3 +48,5 @@ Anchor: `.hopper/queue.md::root`
 - queue updated at 2026-05-06T?? by leader (claude-opus-4-7) — applied Critic v1 PASS_WITH_CHANGES surgical fixes; spec v2 + tasklist v2; T18 split into T18a/T18b; T14-impl deps add T14-spike
 - T01 started at 2026-05-06T14:55:40.3024311+08:00 by builder (GPT-5.5 Codex)
 - T01 done at 2026-05-06T15:01:24.5773153+08:00 — Added AI abstraction skeleton, adapter registry stubs, route helper contract, and passing tsc compatibility
+- T03 started at 2026-05-06T16:07:20.0158527+08:00 by builder (GPT-5.5 Codex)
+- T03 done at 2026-05-06T16:15:46.7637383+08:00 — Upgraded settings schema, implemented Web key storage and resolveProviderConfig with unit coverage

@@ -72,7 +72,6 @@ export interface AIScenarioProviderSettings {
 }
 
 export interface AISettingsV2 {
-  schemaVersion: 2;
   mode: "simple" | "advanced";
   simple: AIScenarioProviderSettings;
   perScenario: Partial<Record<AIScenario, AIScenarioProviderSettings>>;

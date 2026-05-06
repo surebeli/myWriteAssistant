@@ -10,26 +10,26 @@ const storagePrefix = "mywriteassistant.ai.key.";
 
 export const keyStorage: AIKeyStorage = {
   async get(providerId) {
-    if (typeof window === "undefined") {
+    if (typeof globalThis.localStorage === "undefined") {
       return null;
     }
 
-    return window.localStorage.getItem(`${storagePrefix}${providerId}`);
+    return globalThis.localStorage.getItem(`${storagePrefix}${providerId}`);
   },
 
   async set(providerId, apiKey) {
-    if (typeof window === "undefined") {
+    if (typeof globalThis.localStorage === "undefined") {
       return;
     }
 
-    window.localStorage.setItem(`${storagePrefix}${providerId}`, apiKey);
+    globalThis.localStorage.setItem(`${storagePrefix}${providerId}`, apiKey);
   },
 
   async delete(providerId) {
-    if (typeof window === "undefined") {
+    if (typeof globalThis.localStorage === "undefined") {
       return;
     }
 
-    window.localStorage.removeItem(`${storagePrefix}${providerId}`);
+    globalThis.localStorage.removeItem(`${storagePrefix}${providerId}`);
   },
 };

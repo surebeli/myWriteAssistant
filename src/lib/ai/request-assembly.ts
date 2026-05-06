@@ -1,4 +1,7 @@
 import type { AIProviderConfig, AIProviderId, AIScenario } from "./types";
+import { keyStorage } from "./key-storage";
+import { getAdapter } from "./registry";
+import { useSettingsStore } from "../../stores/settings-store";
 
 export class MissingProviderConfigError extends Error {
   constructor(public providerId: AIProviderId) {
@@ -7,8 +10,24 @@ export class MissingProviderConfigError extends Error {
   }
 }
 
-export async function resolveProviderConfig(_scenario: AIScenario): Promise<AIProviderConfig> {
-  throw new MissingProviderConfigError("doubao");
+export async function resolveProviderConfig(scenario: AIScenario): Promise<AIProviderConfig> {
+  const settings = useSettingsStore.getState().ai;
+  const scenarioConfig =
+    settings.mode === "simple" ? settings.simple : settings.perScenario[scenario] ?? settings.simple;
+
+  const apiKey = await keyStorage.get(scenarioConfig.providerId);
+  if (!apiKey) {
+    throw new MissingProviderConfigError(scenarioConfig.providerId);
+  }
+
+  const adapter = getAdapter(scenarioConfig.providerId);
+
+  return {
+    id: scenarioConfig.providerId,
+    apiKey,
+    model: scenarioConfig.modelOverride ?? adapter.defaultModels[0],
+    baseURL: scenarioConfig.baseURLOverride,
+  };
 }
 
 export function generateRequestId(): string {
