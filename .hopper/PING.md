@@ -8,16 +8,24 @@ This file defines what any LLM CLI session should do when the user types `ping`.
 
 ## Forms
 
+### Worker side (Builder / Builder-UI / Executor / Critic / Researcher)
+
 - `ping` — pop the next eligible task for **this session's role**
 - `ping <role>` — explicit override: pop next task for `<role>` regardless of session role
 - `ping --status` — show queue summary, do not modify anything
 - `ping --dry` — show what `ping` would pop, do not modify anything
 
+### Leader side（v3 新增反向通道）
+
+- `review <task-id>` — Leader 读取 task output 文件 + commit + diff，给出 verdict
+- `review` — 自动选最近 done 但未 review 的 task 处理
+- `review --pending` — 列出所有"done 但 Leader 没 review 过"的 task，让用户挑
+
 ---
 
 ## Procedure when user types `ping`
 
-> **Steps overview**：0 confirm role → 1 read queue → 2 find next → 3 lock → 4 read detail → 5 execute → 6 sanity check → 7 mark done in queue → 8 append cost log → **9 commit (atomic)** → 10 report.
+> **Steps overview**：0 confirm role → 1 read queue → 2 find next → 3 lock → 4 read detail → 5 execute → 6 sanity check → 7 mark done in queue → **7.5 write output artifact** → 8 append cost log → 9 commit (atomic) → 10 report.
 
 ### Step 0 — Confirm role
 
@@ -83,6 +91,52 @@ Edit `.hopper/queue.md`:
 
 If task **failed** (acceptance can't be met): set `Status: failed`, write a `.hopper/handoffs/blocker-<task-id>.md` with the reason, and **do not advance**. Tell user to escalate to Leader.
 
+### Step 7.5 — Write output artifact (NEW in v3)
+
+**Mandatory**：mark done 之后，写一份**结构化 output 文件**到 `.hopper/handoffs/<task-id>-output.md`，作为 Leader 反向 feedback 的数据源。
+
+不同角色的 output 文件名约定：
+
+- Builder / Builder-UI / Executor: `.hopper/handoffs/<task-id>-output.md`
+- Critic: `.hopper/handoffs/critic-<task-id>.md` 或 `day*-critic-*.md`（已有约定）
+- Researcher: `.hopper/handoffs/<day>-researcher-output.md`（已有约定）
+
+**为什么需要这个**：Step 10 的"Report" 只在 Worker CLI session 短暂存在，Leader session 拿不到。output.md 落盘后 Leader 可以 `review <task-id>` 时直接读。**这条规则解决"feedback 靠 copy-paste"的协议结构性 gap**。
+
+**Builder Output Template**（Builder/Builder-UI/Executor 用）：
+
+```markdown
+# <task-id> — <role> Output
+
+## Summary
+<one paragraph：做了什么、为什么这样做>
+
+## Files touched
+- path/to/file (new/modified, ~N lines): <one-line purpose>
+- ...
+
+## Acceptance verification (X/Y)
+1. ✓ <criterion 1> — <evidence: 命令输出 / 文件路径 / 行号>
+2. ✓ <criterion 2> — <evidence>
+...
+
+## Decisions / deviations from spec
+- <decision 1>: <reason; 是否需要 Leader 审议>
+- <deviation 1>: <spec 写 X，实际做 Y，因为 Z>
+- 如完全按 spec：写 "无偏离"
+
+## Open questions for Leader
+<bullet list；如无写 "none">
+
+## Commit
+<short-sha> "[<task-id>] <message>"
+
+## Next recommendation
+<下一个建议 pop 的 task ID 或 blocker 提示>
+```
+
+模板见 `.hopper/templates/builder-output.md`（如本项目已部署）。
+
 ### Step 8 — Append to cost log
 
 Append a row to `.hopper/COST-LOG.md`. If it doesn't exist, create it with header:
@@ -118,7 +172,7 @@ git commit -m "[<task-id>] <one-line summary>"
 - 你修改的 work 文件（src/、docs/、tests/ 等）
 - `.hopper/queue.md`（含 Step 3 的 lock 与 Step 7 的 done 翻转）
 - `.hopper/COST-LOG.md`（Step 8 的新行）
-- `.hopper/handoffs/<task-id>-output.md`（如有 handoff 文档）
+- `.hopper/handoffs/<task-id>-output.md`（**Step 7.5 必有**）
 - 不要 `git add .` 或 `git add -A`——精确加你 touched 的文件
 
 **If commit fails**（pre-commit hook / lint / typecheck 报错）：
@@ -167,6 +221,81 @@ Override role for this one ping. Used when one CLI session covers multiple roles
 
 ---
 
+## Leader Review Protocol（v3 新增）
+
+Leader 通过 `review` 系列命令消费 Worker 落盘的 output.md，避免人工 copy-paste。
+
+### Procedure when user types `review <task-id>`
+
+#### Step 1 — Locate task
+
+Read `.hopper/queue.md`，找到 row with ID = `<task-id>`，确认 `Status: done`（如果 in-progress 或 pending 提示用户）。
+
+#### Step 2 — Read artifacts
+
+- `.hopper/handoffs/<task-id>-output.md` — Worker 的结构化 output（**主输入**）
+- 关联 commit：`git log --oneline --grep="\\[<task-id>\\]"` 找 sha → `git show --stat <sha>` 看文件改动
+- 必要时读关键 diff：`git show <sha> -- <key file>`
+- 如有：`.hopper/handoffs/critic-<task-id>.md`（如该 task 已被 Critic 审过）
+
+#### Step 3 — Evaluate
+
+把 output.md 的 5 个段落（Summary / Files / Acceptance / Decisions / Open questions）逐项验证：
+
+- **Acceptance**：每条 evidence 是否真的支持 ✓？
+- **Deviations**：偏离 spec 的决定是否合理？需要 Leader 修订 spec？
+- **Open questions**：每个问题给明确答复（不留悬置）
+
+#### Step 4 — Verdict
+
+四选一：
+
+| Verdict | 含义 | 后续动作 |
+|---------|------|----------|
+| ✅ **accept** | 完全 OK，ship as-is | 无新动作；可在 HOPPER-FEEDBACK 加观察 |
+| ⚠ **accept-with-note** | 接受但有跟进事项 | 在 task 的 output.md 末尾追加 `## Leader review: <verdict>` + note；如有改进想法加 HOPPER-FEEDBACK |
+| ✗ **rework** | 需要修复 | 把新 task `<task-id>-rework-1` 推进 queue.md（status pending）；spec 在原 task 的 output.md 末尾说清楚需要改什么；原 task 状态保持 done |
+| 🚫 **revert** | 严重错误，需回滚 | **不自动 revert**；告诉用户该 commit 应被 revert；写入 `.hopper/handoffs/blocker-<task-id>.md`；queue 里加 `<task-id>-revert` task |
+
+#### Step 5 — Write feedback to output.md
+
+不论 verdict 是哪个，都在 `.hopper/handoffs/<task-id>-output.md` 末尾追加：
+
+```markdown
+---
+
+## Leader review
+
+- Verdict: <accept / accept-with-note / rework / revert>
+- Date: <ISO timestamp>
+- Reviewed-by: leader (<your model name>)
+- Notes:
+  - <bullet 1>
+  - <bullet 2>
+- Follow-up tasks queued: <list of new task IDs in queue.md or "none">
+```
+
+#### Step 6 — Commit feedback
+
+提交 review changes（output.md 末尾追加 + 可能的 queue.md / HOPPER-FEEDBACK 改动）：
+
+```bash
+git add .hopper/handoffs/<task-id>-output.md [.hopper/queue.md] [.hopper/HOPPER-FEEDBACK.md]
+git commit -m "[review:<task-id>] <verdict>: <one-line>"
+```
+
+### Procedure when user types `review`（无参数）
+
+读 `.hopper/queue.md`，找最新一条 status=done 且其 output.md 末尾没有 `## Leader review` 段的 task。等同于 `review <that-id>`。
+
+如果所有 done task 都已 review：响应 "No pending feedback. Last reviewed: <task-id>."
+
+### Procedure when user types `review --pending`
+
+读 `.hopper/queue.md`，列出所有"done 但未 review"的 task ID 与 brief。**不**进入 review 流程，让用户挑下一个。
+
+---
+
 ## Concurrency notes
 
 - This protocol is **not race-safe**. Don't `ping` simultaneously in two sessions for the same role
@@ -186,5 +315,10 @@ Leader pushes by editing `.hopper/queue.md` directly: add a row, set `Status: pe
 
 ## Schema versioning
 
-Current schema version: 2 (added Step 9 atomic commit on 2026-05-06; v1 had no commit step).
-If queue.md format or protocol ever changes incompatibly, this file will document the migration.
+| Version | Date | Change |
+|---------|------|--------|
+| v1 | 2026-05-06 | Initial: 9 steps without commit |
+| v2 | 2026-05-06 | Added Step 9 atomic commit; renumbered Report to Step 10 |
+| **v3** | **2026-05-06** | **Added Step 7.5 (output artifact required) + Leader Review Protocol (`review` family)；解决 worker → leader feedback 的协议 gap** |
+
+If queue.md format or protocol ever changes incompatibly, future versions will document the migration here.

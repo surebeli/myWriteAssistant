@@ -37,6 +37,17 @@ dogfood 过程沉淀的洞察，分三类：
 - **Patch**: spec D6.1 v2 改写；T18 拆 T18a (Builder bridge) + T18b (Builder-UI dialog)
 - **Upstream status**: ⏳ pending → 进 hopper "common pitfalls" 文档（待建）
 
+### F4. PING.md schema v3 — Step 7.5 output artifact + Leader Review Protocol
+
+- **Date**: 2026-05-06
+- **Trigger**: dogfood 中发现协议是单向的——Leader → Builder 走 queue + ping 顺；Builder → Leader 反馈靠**人工 copy-paste Builder CLI 输出**。这是结构性 gap
+- **Insight**: feedback 通道也必须落盘文件，不能依赖 worker session 的 ephemeral CLI report
+- **Patch**: 
+  - PING.md v3 加 Step 7.5（Builder 必须写 `.hopper/handoffs/<task-id>-output.md`）+ Leader Review Protocol（`review <task-id>` / `review` / `review --pending`）
+  - `templates/builder-output.md` 提供模板
+  - 现有 T01 / T03 由 Leader 回溯构造 output.md（标 `> 注：回溯构造`）让 review 流程能立刻试
+- **Upstream status**: ⏳ pending → 这次 sync sweep（PING.md + builder-output template 同步到 llm-hopper main）
+
 ### F3. AIAdapterCapabilities 必须有可执行 contract，不能只是 flag
 
 - **Date**: 2026-05-06
@@ -122,10 +133,13 @@ dogfood 过程沉淀的洞察，分三类：
 
 | ID | 描述 | 上游目标位置 | Status |
 |----|------|------------|--------|
-| F1 | PING.md schema v2 | `llm-hopper/.hopper/PING.md` | 本次同步 |
-| F1 | queue.md template | `llm-hopper/.hopper/templates/queue.md` | 本次同步 |
-| F1 | bootstrap files template | `llm-hopper/.hopper/templates/bootstrap/*` | 本次同步 |
-| F1 | README mention | `llm-hopper/README.md` 项目结构段 + TODO | 本次同步 |
-| F1 | CHANGELOG | `llm-hopper/CHANGELOG.md` v0.3 unreleased entry | 本次同步 |
+| F1 | PING.md schema v2 | `llm-hopper/.hopper/PING.md` | ✓ 已同步（commit 8d99899）|
+| F1 | queue.md template | `llm-hopper/.hopper/templates/queue.md` | ✓ 已同步 |
+| F1 | bootstrap files template | `llm-hopper/.hopper/templates/bootstrap/*` | ✓ 已同步 |
+| F1 | README mention | `llm-hopper/README.md` 项目结构段 + TODO | ✓ 已同步 |
+| F1 | CHANGELOG | `llm-hopper/CHANGELOG.md` v0.3 unreleased entry | ✓ 已同步 |
+| F4 | PING.md schema v3 | `llm-hopper/.hopper/PING.md` | 本次同步 |
+| F4 | builder-output template | `llm-hopper/.hopper/templates/builder-output.md` | 本次同步 |
+| F4 | CHANGELOG | `llm-hopper/CHANGELOG.md` v0.3 entry 追加 v3 schema | 本次同步 |
 | F2/F3 | "common pitfalls" 通用文档 | `llm-hopper/docs/common-pitfalls.md`（未来）| ⏳ 累积 5 条以上再建 |
 | P1-P4 | prompt 模板改进 | `llm-hopper/.hopper/prompts/*` | ⏳ 不同步，待提案确认 |
