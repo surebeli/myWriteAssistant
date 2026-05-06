@@ -64,10 +64,11 @@ export function useWorkspace(): UseWorkspaceReturn {
         
         setIsSelecting(false);
         return null;
-      } else if (typeof window !== "undefined" && "showDirectoryPicker" in window) {
+      } else if (typeof window !== "undefined" && typeof window.showDirectoryPicker === "function") {
         console.log("[useWorkspace] Using Browser File System API");
         // 使用浏览器 File System Access API
-        const handle = await window.showDirectoryPicker({
+        const showDirectoryPicker = window.showDirectoryPicker;
+        const handle = await showDirectoryPicker({
           mode: "readwrite",
         });
 
