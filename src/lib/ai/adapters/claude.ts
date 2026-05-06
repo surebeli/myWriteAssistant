@@ -1,40 +1,37 @@
-import { createOpenAI } from "@ai-sdk/openai";
+import { createAnthropic } from "@ai-sdk/anthropic";
 
 import type { AIAdapter, AIProviderConfig, CoreMessage, NormalizedUsage } from "../types";
 
-const DEFAULT_BASE_URL = "https://ark.cn-beijing.volces.com/api/v3";
-const DEFAULT_MODEL = "doubao-1-5-pro-32k-250115";
+const DEFAULT_BASE_URL = "https://api.anthropic.com/v1";
+const DEFAULT_MODEL = "claude-sonnet-4-20250514";
 
-export const doubaoAdapter: AIAdapter = {
-  id: "doubao",
-  name: "Doubao",
+export const claudeAdapter: AIAdapter = {
+  id: "claude",
+  name: "Claude",
   defaultModels: [DEFAULT_MODEL],
   status: "stable",
   capabilities: {
     supportsSystem: true,
     streamingMode: "sse",
     defaultBaseURL: DEFAULT_BASE_URL,
-    authStyle: "bearer",
+    authStyle: "x-api-key",
   },
   createModel: (config: AIProviderConfig) => {
-    const provider = createOpenAI({
+    const provider = createAnthropic({
       apiKey: config.apiKey,
       baseURL: config.baseURL ?? DEFAULT_BASE_URL,
     });
 
     return provider(config.model);
   },
-  prepareMessages: (system: string | undefined, messages: CoreMessage[]) => ({
-    system: undefined,
-    messages: system ? [{ role: "system", content: system }, ...messages] : messages,
-  }),
+  prepareMessages: (system: string | undefined, messages: CoreMessage[]) => ({ system, messages }),
   extractUsage: (rawResponse: unknown): NormalizedUsage => {
     const raw = asRecord(rawResponse) ?? {};
     const usage = asRecord(raw.usage) ?? asRecord(raw.totalUsage) ?? raw;
 
     return {
-      tokensIn: readNumber(usage, ["inputTokens", "promptTokens", "prompt_tokens"]),
-      tokensOut: readNumber(usage, ["outputTokens", "completionTokens", "completion_tokens"]),
+      tokensIn: readNumber(usage, ["inputTokens", "promptTokens", "input_tokens"]),
+      tokensOut: readNumber(usage, ["outputTokens", "completionTokens", "output_tokens"]),
       modelEcho: readString(raw, ["model", "modelId"]) ?? readString(asRecord(raw.response), ["model", "modelId"]),
     };
   },
@@ -46,12 +43,12 @@ export const doubaoAdapter: AIAdapter = {
     const code =
       statusCode === 401 || statusCode === 403
         ? "unauthorized"
-        : readString(error, ["code"]) ??
-          readString(upstreamError, ["code", "type"]) ??
+        : readString(upstreamError, ["type", "code"]) ??
+          readString(error, ["code"]) ??
           "provider_error";
     const message =
-      readString(error, ["message"]) ??
       readString(upstreamError, ["message"]) ??
+      readString(error, ["message"]) ??
       "Provider request failed.";
 
     return {
@@ -98,6 +95,7 @@ function readString(record: Record<string, unknown> | undefined, keys: string[])
 function redactSensitiveText(message: string): string {
   return message
     .replace(/Bearer\s+[A-Za-z0-9._~+/=-]+/gi, "Bearer [redacted]")
+    .replace(/(x-api-key["']?\s*[:=]\s*["']?)[^"',\s}]+/gi, "$1[redacted]")
     .replace(/(api[_-]?key["']?\s*[:=]\s*["']?)[^"',\s}]+/gi, "$1[redacted]")
     .replace(/(authorization["']?\s*[:=]\s*["']?)(?!Bearer\s+\[redacted\])[^"',\s}]+/gi, "$1[redacted]");
 }

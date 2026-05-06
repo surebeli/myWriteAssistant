@@ -16,12 +16,12 @@ describe("doubao adapter", () => {
     });
   });
 
-  test("passes system and messages through unchanged", () => {
+  test("moves system prompts into messages for OpenAI-compatible dispatch", () => {
     const messages: CoreMessage[] = [{ role: "user", content: "hello" }];
 
     expect(doubaoAdapter.prepareMessages("system prompt", messages)).toEqual({
-      system: "system prompt",
-      messages,
+      system: undefined,
+      messages: [{ role: "system", content: "system prompt" }, ...messages],
     });
   });
 

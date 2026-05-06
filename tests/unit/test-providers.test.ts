@@ -5,6 +5,7 @@ import {
   parseSmokeArgs,
   runProviderSmoke,
 } from "../../scripts/test-providers";
+import { listAdapters } from "../../src/lib/ai/registry";
 import type { AIAdapter } from "../../src/lib/ai/types";
 
 const fakeModel = {} as ReturnType<AIAdapter["createModel"]>;
@@ -84,6 +85,25 @@ describe("test-providers smoke runner", () => {
     expect(summary.exitCode).toBe(1);
     expect(summary.results).toMatchObject([
       { provider: "openai", status: "failed", reason: "empty_response" },
+    ]);
+  });
+
+  test("can target the registered Claude adapter with an injected smoke sender", async () => {
+    const called: string[] = [];
+    const summary = await runProviderSmoke({
+      adapters: listAdapters(),
+      env: { SMOKE_CLAUDE_API_KEY: "sk-ant-test" },
+      only: "claude",
+      sendPing: async ({ adapter: currentAdapter, prompt }) => {
+        called.push(`${currentAdapter.id}:${prompt}`);
+        return "pong";
+      },
+    });
+
+    expect(summary.exitCode).toBe(0);
+    expect(called).toEqual(["claude:ping"]);
+    expect(summary.results).toMatchObject([
+      { provider: "claude", status: "passed" },
     ]);
   });
 });
