@@ -10,6 +10,24 @@ AI 驱动的写作助手，帮助你收集素材、整理思路、高效创作�
 - ⚡ **AI Proactive 模式** - 实时句子改写建议
 - 🖥️ **桌面应用** - 基于 Tauri，轻量原生体验
 
+## 🔌 AI Provider 抽象层（v0.2 进行中）
+
+myWriteAssistant 正在推进 **vendor-agnostic AI provider 重构**（v0.2），目标是将 AI 调用从硬编码的豆包 API 解耦为统一的 provider 抽象层，让用户能够真实跨家选择模型，同时获取 cost 可见性。
+
+v0.2 首发支持 5 家 provider：
+
+- **豆包 (Doubao)** — 当前默认，通过 `@ai-sdk/openai` 兼容层接入
+- **Claude (Anthropic)** — 通过 `@ai-sdk/anthropic` 接入
+- **OpenAI** — 通过 `@ai-sdk/openai` 接入
+- **Kimi (Moonshot)** — OpenAI-compatible 接入
+- **DeepSeek** — OpenAI-compatible 接入
+
+核心架构包括 `AIAdapter` interface（capability、usage、error 统一协议）、adapter registry、per-scenario 路由配置（支持 Chat / Proactive 分别指定模型）、统一 key storage 抽象（Tauri 桌面端走 OS keyring，Web 端走 localStorage 加显式风险提示）和 cost observability（每次调用记录 token 消耗 + 估算费用，提供 table-only dashboard）。API key 全程由 `resolveProviderConfig` 单一入口组装，**禁止** `process.env` 读取或各处自拼。
+
+当前处于 **v0.2 开发中**，完成后 Settings 页面可真实切换 provider，无需改环境变量。v0.2 同时提供首次启动的 legacy Doubao 配置迁移检测 bridge，让老用户平滑升级。
+
+详细设计见 [v0.2 设计文档](docs/plans/2026-05-06-v0.2-vendor-agnostic-refactor.md)。
+
 ## 🚀 快速开始
 
 ### 前置要求

@@ -36,7 +36,7 @@ Anchor: `.hopper/queue.md::root`
 | T12 | executor-1 | pending | T09 | message bubble 加 `producedBy` 标注 |
 | T16 | critic | pending | T09, T10 | PR diff review batch 2（cost dashboard，出 `critic-T09-T10.md`）|
 | T-EXE-1 | executor-1 | pending | T01 | 🔬 [validation-only] 给 src/lib/ai/ public exports 加 JSDoc 注释（不改 logic；tsc 仍过）|
-| T-EXE-2 | executor-2 | pending | T01 | 🔬 [validation-only] README.md 加 "AI provider abstraction (v0.2 进行中)" 小节（15-30 行，不动现有段落）|
+| T-EXE-2 | executor-2 | done | T01 | 🔬 [validation-only] README.md 加 "AI provider abstraction (v0.2 进行中)" 小节（15-30 行，不动现有段落）|
 
 ---
 
@@ -54,3 +54,5 @@ Anchor: `.hopper/queue.md::root`
 - T03 done at 2026-05-06T16:15:46.7637383+08:00 — Upgraded settings schema, implemented Web key storage and resolveProviderConfig with unit coverage
 - T13 started at 2026-05-06T16:58:50.0501493+08:00 by builder (GPT-5.5 Codex)
 - T13 done at 2026-05-06T17:12:36.6957902+08:00 — Added provider smoke runner, npm script, CLI flags, and unit coverage
+- T-EXE-2 started at 2026-05-06T?? by executor-2 (DeepSeek-V4-Flash)
+- T-EXE-2 done at 2026-05-06T?? — Added "AI provider abstraction (v0.2 进行中)" section to README.md (17 lines, 5 providers, design doc link)
