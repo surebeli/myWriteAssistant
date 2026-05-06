@@ -20,7 +20,7 @@ Anchor: `.hopper/queue.md::root`
 | T03 | builder | done | T01 | Settings store v0.2 schema + key-storage Web 实装 + `resolveProviderConfig` |
 | T13 | builder | done | T01 | Provider smoke script（支持 `--only=<id>`）|
 | T14-spike | builder | pending |  | Tauri secure storage plugin 调研（半天，**仅出 spike 文档不动代码**）|
-| T02 | builder | pending | T01, T17 | Doubao adapter + chat/proactive route refactor + error sanitizer |
+| T02 | builder | done | T01, T17 | Doubao adapter + chat/proactive route refactor + error sanitizer |
 | T05 | builder-ui (+ builder pair on wiring) | pending | T03, T17 | Settings AI UI + 接通 `resolveProviderConfig` + 空状态引导 |
 | T04 | builder | pending | T02, T03, T13 | Claude adapter（capability/extractUsage/normalizeError 完整）|
 | T18a | builder | pending | T03 | Migration bridge：Next API + Tauri command 读取 legacy DOUBAO env（不返完整 key）|
@@ -60,3 +60,5 @@ Anchor: `.hopper/queue.md::root`
 - T17 status restored to done at 2026-05-06T?? by leader (claude-opus-4-7) — fix for e37151c regression
 - T-EXE-2 started at 2026-05-06T?? by executor-2 (DeepSeek-V4-Flash)
 - T-EXE-2 done at 2026-05-06T?? — Added "AI provider abstraction (v0.2 进行中)" section to README.md (17 lines, 5 providers, design doc link)
+- T02 started at 2026-05-06T18:43:34.5341756+08:00 by builder (GPT-5.5 Codex)
+- T02 done at 2026-05-06T19:02:05.7088050+08:00 — Added Doubao adapter, refactored chat/proactive routes through callAdapter, sanitized errors, and covered route dispatch tests

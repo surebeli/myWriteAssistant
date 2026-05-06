@@ -1,5 +1,4 @@
-import type { LanguageModelV2 } from "@ai-sdk/provider";
-import type { ModelMessage } from "ai";
+import type { LanguageModel, ModelMessage } from "ai";
 
 export type CoreMessage = ModelMessage;
 
@@ -43,7 +42,7 @@ export interface AIAdapter {
   defaultModels: string[];
   status: "stable";
   capabilities: AIAdapterCapabilities;
-  createModel: (config: AIProviderConfig) => LanguageModelV2;
+  createModel: (config: AIProviderConfig) => LanguageModel;
   prepareMessages: (system: string | undefined, messages: CoreMessage[]) => AdjustedRequest;
   extractUsage: (rawResponse: unknown) => NormalizedUsage;
   normalizeError: (err: unknown) => NormalizedError;

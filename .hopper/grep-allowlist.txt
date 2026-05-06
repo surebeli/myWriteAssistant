@@ -1,0 +1,18 @@
+# Grep allow-list for v0.2 provider abstraction migration.
+#
+# Pattern checked by T02/T11:
+#   DOUBAO|doubao|豆包|createOpenAI
+#
+# T11 owns the final repository sweep before ship. T02 establishes the initial
+# allow-list while removing legacy direct upstream calls from API routes.
+
+# Provider type/catalog and Doubao adapter implementation.
+src/lib/ai/types.ts
+src/lib/ai/adapters/doubao.ts
+src/lib/ai/adapters/index.ts
+
+# Default v0.2 initial provider in settings schema. API keys are not persisted here.
+src/stores/settings-store.ts
+
+# Deferred to T06: status bar still displays the current hardcoded label.
+src/components/layout/status-bar.tsx

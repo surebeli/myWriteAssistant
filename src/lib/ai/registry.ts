@@ -1,6 +1,7 @@
 import type { AIAdapter, AIProviderId } from "./types";
+import { adapters } from "./adapters";
 
-export const providerRegistry: AIAdapter[] = [];
+export const providerRegistry: AIAdapter[] = adapters;
 
 export function listAdapters(): AIAdapter[] {
   return providerRegistry;

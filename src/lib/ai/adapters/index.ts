@@ -1,3 +1,5 @@
-import type { AIAdapter } from "../types";
+import { doubaoAdapter } from "./doubao";
 
-export const adapterPlaceholders: AIAdapter[] = [];
+export { doubaoAdapter } from "./doubao";
+
+export const adapters = [doubaoAdapter];

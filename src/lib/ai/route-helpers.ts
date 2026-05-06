@@ -2,13 +2,15 @@ import { streamText } from "ai";
 
 import type { AIAdapter, AIProviderConfig, AIProviderId, CoreMessage, NormalizedError } from "./types";
 
+export type ErrorResponseProvider = AIProviderId | "unknown";
+
 export function generateRequestId(): string {
   return globalThis.crypto?.randomUUID?.() ?? `${Date.now()}-${Math.random().toString(36).slice(2)}`;
 }
 
 export function sanitizeProviderError(
   error: NormalizedError,
-  provider: AIProviderId,
+  provider: ErrorResponseProvider,
   requestId: string,
 ) {
   return {
@@ -19,11 +21,37 @@ export function sanitizeProviderError(
   };
 }
 
+export function createProviderErrorResponse(
+  error: NormalizedError,
+  provider: ErrorResponseProvider,
+  requestId: string,
+  status = 502,
+): Response {
+  return Response.json(
+    {
+      error: sanitizeProviderError(error, provider, requestId),
+    },
+    { status },
+  );
+}
+
+export function createMissingProviderConfigResponse(requestId: string): Response {
+  return createProviderErrorResponse(
+    {
+      code: "missing_provider_config",
+      message: "Provider configuration is required.",
+    },
+    "unknown",
+    requestId,
+    400,
+  );
+}
+
 export function sanitizeErrorMessage(message: string): string {
   return message
     .replace(/Bearer\s+[A-Za-z0-9._~+/=-]+/gi, "Bearer [redacted]")
     .replace(/(api[_-]?key["']?\s*[:=]\s*["']?)[^"',\s}]+/gi, "$1[redacted]")
-    .replace(/(authorization["']?\s*[:=]\s*["']?)[^"',\s}]+/gi, "$1[redacted]");
+    .replace(/(authorization["']?\s*[:=]\s*["']?)(?!Bearer\s+\[redacted\])[^"',\s}]+/gi, "$1[redacted]");
 }
 
 export function logAIRequest(event: string, fields: Record<string, unknown> = {}): void {
