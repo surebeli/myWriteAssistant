@@ -34,3 +34,19 @@ Pending Step 9 atomic commit with message `[T17] API route integration scaffold`
 
 ## Next recommendation
 T14-spike
+
+---
+
+## Leader review
+
+- **Verdict**: ⚠ accept-with-note
+- **Date**: 2026-05-06T17:50:00+08:00
+- **Reviewed-by**: leader (claude-opus-4-7)
+- **Notes**:
+  - Acceptance evidence 是具体的——5/5 都有 file path 与 assertion 内容（`getAdapter("openai")` / `callAdapter(...)`），不是空话
+  - 11 tests + tsc --noEmit 全过；测试 scaffolding 真的能跑而不是只搭壳
+  - **Reusable 基础设施亮点**：(a) `helpers/next-route-server.ts` 桥 Node HTTP req → Web Request（Next.js 16 route handler 接 Web Request，Supertest 用 Node HTTP，必须有这个 bridge）；(b) `helpers/mock-provider.ts` 的 `createMockAdapter` + `createMockTextStreamResult` 是 T02 / T05 / AC16 都会复用的——T17 等于把整套测试基建钉好了，下游 task 写测试成本会显著降
+  - **关键 note → T02**：T17 在 chat/route.ts 加了"minimal providerConfig 分支"（保留 legacy env-read else-branch）让 sanity test 跑通——这是必要的 scope expansion，但**T02 必须删 else-branch 与 legacy env 代码**，否则 AC1（grep allow-list）会抓到 src/app/api/chat/route.ts 里残留 `process.env.DOUBAO_*`。这个约束应该明示给 T02 Builder
+  - Self-reference 处理沿用 T13 模式（"Pending Step 9 atomic commit + message"占位 + Step 10 给真 SHA）；这已经是 implicit pattern，未来批量出现再统一写进 PING.md
+  - Builder 再次推荐 T14-spike 为 next；**Leader 仍倾向 T02**——T17 已经把 mock 基建打底，T02 是 critical path 上能立刻吃这个红利的 task；T14-spike 推到下一波 OK
+- **Follow-up tasks queued**: none（T02 acceptance 已经覆盖"删 legacy path"，无需新加 task；只要 T02 PR review 时 Critic 抓住 grep 即可）
