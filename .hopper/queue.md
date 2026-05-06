@@ -25,7 +25,7 @@ Anchor: `.hopper/queue.md::root`
 | T04 | builder | done | T02, T03, T13 | Claude adapter（capability/extractUsage/normalizeError 完整）|
 | T18a | builder | pending | T03 | Migration bridge：Next API + Tauri command 读取 legacy DOUBAO env（不返完整 key）|
 | T18b | builder-ui | pending | T18a, T03 | 首启 migration dialog UI + 空状态引导组件（调 T18a bridge）|
-| T15 | critic | pending | T01, T02, T03, T04 | PR diff adversarial review batch 1（出 `critic-T01-T04.md`）|
+| T15 | critic | done | T01, T02, T03, T04 | PR diff adversarial review batch 1（出 `critic-T01-T04.md`）|
 | T07 | builder | pending | T04, T13 | Kimi adapter（registry-only，不直接改 UI）|
 | T08 | builder | pending | T04, T13 | DeepSeek adapter（registry-only）|
 | T09 | builder | pending | T02, T05 | Cost recording：finish event with usage + IndexedDB idempotency |
@@ -66,3 +66,5 @@ Anchor: `.hopper/queue.md::root`
 - T-EXE-1 done at 2026-05-06T22:53:00.0000000+08:00 — Added JSDoc comments to all public exports in src/lib/ai/ (8 files, ~80 comment lines); tsc baseline verified; zero logic changes
 - T04 started at 2026-05-06T22:49:02.2169692+08:00 by builder (GPT-5.5 Codex)
 - T04 done at 2026-05-06T23:04:47.9577727+08:00 — Added Claude adapter, registered Anthropic provider package, verified build/type/tests, and smoke command integration
+- T15 started at 2026-05-06T23:44:08.6939035+08:00 by critic (GPT-5.5 Codex)
+- T15 done at 2026-05-06T23:54:59.1143211+08:00 — Wrote adversarial review for T01-T04 batch; verdict REWORK before independent landing
