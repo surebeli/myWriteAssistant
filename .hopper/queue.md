@@ -16,7 +16,7 @@ Anchor: `.hopper/queue.md::root`
 |----|------|--------|---------|-------|
 | critic-v1 | critic | done |  | Re-review spec v1 + tasklist v1（出 `.hopper/handoffs/day2-critic-spec-review-v1.md`，prompt 在 `.hopper/prompts/critic-day2-spec-review.md`）|
 | T01 | builder | done |  | `src/lib/ai/` 抽象层骨架（types/registry/prompts/pricing/key-storage/request-assembly/route-helpers + adapters/ 占位）|
-| T17 | builder | done | T01, T03 | API route 集成测试 scaffolding（vitest 已被 T03 装好；本任务只加 supertest + tests/integration/api/ + 1 sanity 测试，工作量 S）|
+| T17 | builder | pending | T01, T03 | API route 集成测试 scaffolding（vitest 已被 T03 装好；本任务只加 supertest + tests/integration/api/ + 1 sanity 测试，工作量 S）|
 | T03 | builder | done | T01 | Settings store v0.2 schema + key-storage Web 实装 + `resolveProviderConfig` |
 | T13 | builder | done | T01 | Provider smoke script（支持 `--only=<id>`）|
 | T14-spike | builder | pending |  | Tauri secure storage plugin 调研（半天，**仅出 spike 文档不动代码**）|
@@ -35,6 +35,8 @@ Anchor: `.hopper/queue.md::root`
 | T10 | builder-ui | pending | T09 | Cost dashboard 三 table 视图（无图表 / 无 override / 无导出）|
 | T12 | executor-1 | pending | T09 | message bubble 加 `producedBy` 标注 |
 | T16 | critic | pending | T09, T10 | PR diff review batch 2（cost dashboard，出 `critic-T09-T10.md`）|
+| T-EXE-1 | executor-1 | pending | T01 | 🔬 [validation-only] 给 src/lib/ai/ public exports 加 JSDoc 注释（不改 logic；tsc 仍过）|
+| T-EXE-2 | executor-2 | pending | T01 | 🔬 [validation-only] README.md 加 "AI provider abstraction (v0.2 进行中)" 小节（15-30 行，不动现有段落）|
 
 ---
 
@@ -52,5 +54,3 @@ Anchor: `.hopper/queue.md::root`
 - T03 done at 2026-05-06T16:15:46.7637383+08:00 — Upgraded settings schema, implemented Web key storage and resolveProviderConfig with unit coverage
 - T13 started at 2026-05-06T16:58:50.0501493+08:00 by builder (GPT-5.5 Codex)
 - T13 done at 2026-05-06T17:12:36.6957902+08:00 — Added provider smoke runner, npm script, CLI flags, and unit coverage
-- T17 started at 2026-05-06T17:33:52.9213253+08:00 by builder (GPT-5.5 Codex)
-- T17 done at 2026-05-06T17:39:44.6315643+08:00 — Added supertest API integration scaffold and chat route mock-provider sanity test

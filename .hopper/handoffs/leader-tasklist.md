@@ -45,6 +45,22 @@ Anchor: `.hopper/handoffs/leader-tasklist.md::root`
 
 ---
 
+## 🔬 Validation-only tasks（不在 v0.2 ship scope；纯为 dogfood 验证 7/7 角色 + 跨家 cost 对比）
+
+| ID | Owner | 标题 | 触碰文件 | Acceptance | 依赖 | 工作量 |
+|----|-------|------|----------|------------|------|--------|
+| **T-EXE-1** | Executor-1 (Kimi 2.6) | 🔬 给 `src/lib/ai/` public exports 加 JSDoc 注释 | `src/lib/ai/types.ts` / `registry.ts` / `route-helpers.ts` / `request-assembly.ts` / `prompts.ts` / `pricing.ts` / `key-storage.ts` / `adapters/index.ts`（**仅注释行**，不改 logic） | (a) 每个 export（type / interface / function / const）有 1-3 行 JSDoc；@param / @returns 按需；(b) `tsc --noEmit` 仍 pass；(c) `git diff --stat` 显示仅注释行变化（如不确定可在 output.md 里标记需 Leader 确认）；(d) 用 Kimi 长上下文优势：一次吞 7 个文件后批量加注释 | T01 | S |
+| **T-EXE-2** | Executor-2 (DeepSeek V4-flash) | 🔬 README.md 加 "AI provider abstraction (v0.2 进行中)" 小节 | `README.md`（仅扩展，不改原有段落） | (a) 新增 15-30 行段落；位置紧跟 "AI Chat 模式" / "AI Proactive 模式" 两条 feature 下方；(b) 内容需描述：vendor-agnostic 目标 / 5 家首发 provider 名单 / 当前为 v0.2 进行中 / 链接到 `docs/plans/2026-05-06-v0.2-vendor-agnostic-refactor.md`；(c) 现有 README 段落顺序不动；(d) markdown 合法 | T01 | S |
+
+**Validation 任务约定**：
+
+- 不进 v0.2 ship gate（不计入 AC1-AC16）
+- 不需要 Critic 强制 review；但 Leader 会 `review T-EXE-X` 走完整 v3 协议（验证 review 在 Executor 任务上也工作）
+- COST-LOG 必须自报 token / $（这是验证目的之一）
+- 如果 Executor session 不会 git commit 或不会按 PING v3 走完整流程，**真实暴露**——出 blocker 我们调 PING.md / 模板
+
+---
+
 ## 依赖图（文字版）
 
 ```
