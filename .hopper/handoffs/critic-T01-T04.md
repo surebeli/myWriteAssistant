@@ -89,3 +89,39 @@ Recommendation: Keep T04 accepted as adapter wiring, but do not count it as a li
 ## Next Recommendation
 
 Leader should decide whether T01-T04 is allowed to remain an internal, non-shippable intermediate batch until T05 lands. If not, send a rework task to wire minimal `resolveProviderConfig` into `use-chat` and `use-proactive` before this batch can land. Also queue or remove OpenAI before T07/T08 continue the adapter wave.
+
+---
+
+## Leader response
+
+- **Date**: 2026-05-07T00:20:00+08:00
+- **Reviewed-by**: leader (claude-opus-4-7)
+- **Verdict acceptance**: ✅ **Critic 的 REWORK verdict 完全接受**——3 个 P1 全部为真实 ship-blocking issue，不是过度严苛
+- **承认的 Leader review 盲点**：
+  - 我做 T02 review (strong accept) 时**只检查了后端 AC1（grep allow-list），没验证 client side 是否还在 post 旧 body shape**——Critic Finding #1 是我应当抓但没抓到的核心整合问题
+  - T04 review 时也没验证 OpenAI 是否真有 adapter——`STABLE_PROVIDER_IDS` 含 "openai" 但 registry 没有，是 spec 设计与 task 拆分的不一致，我作为 spec 作者应该在拆 task 时就发现
+  - sanitizer 的 regex 我以为"覆盖 Bearer/api_key/authorization"就够了，没想到 upstream 报错是自然语言形态（"Incorrect API key provided: sk-..."）
+  - **这次 dogfood 强烈印证：Leader review 与 Critic batch review 是互补的，单 Leader review 不够**
+
+### Action plan（每 finding 对应一个新 task）
+
+| Finding | Action | New task |
+|---------|--------|----------|
+| #1 client/server break | wire resolveProviderConfig 进 use-chat / use-proactive；同时 fold finding #4（proactive bare error）一起修 | **T02-rework** (builder, deps T02, M) |
+| #2 OpenAI 缺 adapter | 加 OpenAI adapter（同 Kimi/DeepSeek 模式） | **T-OPENAI** (builder, deps T04+T13, S) |
+| #3 sanitizer regex gap | 扩展 sanitizer 覆盖 bare sk-.../sk-ant-.../whitespace label/x-api-key forms；统一所有 adapter normalizeError 走共享 sanitizer | **T-SANITIZER-FIX** (builder, deps T02, S) |
+| #4 (P2) proactive bare error | fold into T02-rework | — |
+| #5 (P2) T04 not live-smoked | 不加 task；ship checklist 加一条"distinguish wiring-works vs live-verified"；CI 必须 `--require-all-stable` with real secrets | (doc only) |
+
+### 关于 PR boundary
+
+- T01-T04 batch **不再算 shippable PR**——必须先完成 T02-rework + T-SANITIZER-FIX 才能 land
+- T05 重新升级为"配套 task"（之前是独立任务），实际上 T02-rework 完成 client wiring 后 T05 的 Settings UI 就 build on real working hooks
+- T-OPENAI 不阻塞 land 顺序但必须 T07/T08 之前完成（避免 5-stable gate 失败）
+
+### Verdict 落地
+
+- Critic-T15 verdict 为 REWORK；3 个 rework task 已加进 queue + tasklist
+- T02 与 T04 的原 review verdict 不撤回（accept 在当时是基于"AC1 grep + AC16 prepareMessages 工作"是合理的），但 critic-T01-T04.md 现在是这一批的**真实交付状态**——T02-rework + T-SANITIZER-FIX 完成才算批次实际 ship-ready
+- Builder 下一 ping 应优先 **T02-rework**（最高优先级，ship-blocker），然后 T-SANITIZER-FIX，再 T-OPENAI
+- T07/T08 推迟到 T02-rework + T-SANITIZER-FIX done 之后

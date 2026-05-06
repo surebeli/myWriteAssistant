@@ -123,6 +123,16 @@ dogfood 过程沉淀的洞察，分三类：
 - **Action**: 升级为 (A) 类 patch 候选——PING.md Step 7.5 可加 "Recommended pattern: split commit for SHA backfill"；但要在更多 task 验证后再钉死，避免过早 over-prescribe
 - **Status**: 🤔 待 T-EXE-1（Kimi）跑完看是否独立想到同样模式（强信号）or 用占位（弱信号）；决定是否升级为协议要求
 
+### O7. Critic batch review 抓到 Leader review 全部 miss 的 3 个 P1 ship-blockers（最强 essay 素材）
+
+- T15 (Critic, GPT-5.5 fresh session, $0.65) 在 T01-T04 batch review 中抓到 3 个 ship-blocking 问题，全部是 Leader（Claude Opus，me）做 T02/T04 review 时**完全没注意到**的：
+  1. **Client/server contract break**: 后端 route 改了但前端 hook 没改，UI 立刻全挂 — Leader 只查了 backend grep，没查 `src/hooks/*`
+  2. **OpenAI 在 STABLE_PROVIDER_IDS 但无 adapter**: 5-stable gate 必失败 — Leader 写 spec 时声明 5 家但 task 拆分只覆盖 4 家，自我不一致
+  3. **Sanitizer regex gap**: 漏掉 bare `sk-...` / 自然语言形态 "API key provided: ..." — Leader 看到 Bearer/api_key/authorization 覆盖就 OK 了，没想到 upstream 错误本来就长成自然语言
+- **关键观察**: 单 Leader review **不够**——Leader 是 spec 作者，看自己写的东西有 confirmation bias；Critic fresh session 不带 spec 写作记忆，更容易看到整合面 / 边界 / 矛盾
+- **协议含义**: PING.md 的 Leader review 与 Critic batch review **不是冗余**，是不同视角；建议 spec 类 task batch（≥ 3 个相关 task）必走 Critic 一次再算 ship-ready
+- **Essay 素材**: 这是单 LLM 协作 (即使是 Claude Opus 级别) 不够的硬证据——Critic 的 REWORK verdict 让 v0.2 避开了"看起来全过 actually 上线立刻挂"的事故。直接引用 critic-T01-T04.md 内容 + Leader 承认盲点即可写一段强有力的论据
+
 ### O5. 跨家 cost 200x 差距是 dogfood thesis 的硬证据（essay 素材）
 
 - 同周期同量级"小篇幅文档/注释"任务：

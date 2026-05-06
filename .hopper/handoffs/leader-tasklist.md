@@ -45,6 +45,16 @@ Anchor: `.hopper/handoffs/leader-tasklist.md::root`
 
 ---
 
+## 🔧 Rework tasks (from Critic T15 batch review, 2026-05-07)
+
+| ID | Owner | 标题 | 触碰文件 | Acceptance | 依赖 | 工作量 |
+|----|-------|------|----------|------------|------|--------|
+| **T02-rework** | Builder (GPT-5.5) | wire `resolveProviderConfig` into use-chat + use-proactive；fix proactive bare error contract | `src/hooks/use-chat.ts` / `src/hooks/use-proactive.ts` / `src/app/api/proactive/route.ts` / `tests/integration/api/*` 必要时扩展 | (a) `use-chat` POST body 含 `{ providerConfig, requestId, scenario: 'chat', messages }`；(b) `use-proactive` POST body 含 `{ providerConfig, requestId, scenario: 'proactive', sentence, context }`；(c) `requestId` 用 `generateRequestId()`；(d) `providerConfig` 用 `resolveProviderConfig(scenario)`；(e) proactive 的 "Sentence is required" 返回 sanitized `{ error: { code: 'missing_sentence', provider, requestId, message } }`；(f) 集成测试 mock fetch 验证 body shape；(g) 手动验证：默认配 Doubao 后 Chat 面板能 end-to-end 跑通；(h) tsc + npm test 全过 | T02 | M |
+| **T-OPENAI** | Builder (GPT-5.5) | OpenAI adapter（filling 5-stable gate） | 新增 `src/lib/ai/adapters/openai.ts`；改 `adapters/index.ts`；如需 `package.json` + lockfile（@ai-sdk/openai 应已有）；新增 `tests/unit/openai-adapter.test.ts` | (a) adapter 实装 capabilities + prepareMessages（OpenAI-compat 模式，与 Doubao 类似但 baseURL 不同）+ extractUsage + normalizeError；(b) registry 注册成功；(c) `npm run smoke:providers -- --only=openai` 命令路径通；(d) `npm install` + tsc + tests 全过；(e) `npm run smoke:providers -- --require-all-stable` 在 5 家 stable 都缺 key 时报 5 个 missing_key 而不是 not_registered（含 OpenAI） | T04, T13 | S |
+| **T-SANITIZER-FIX** | Builder (GPT-5.5) | 扩展 sanitizer regex + 统一 adapter normalizeError | `src/lib/ai/route-helpers.ts` 扩展 `sanitizeErrorMessage`；`src/lib/ai/adapters/{doubao,claude,openai,kimi,deepseek}.ts` 的 `normalizeError` 改为复用 route-helpers 共享函数；`tests/unit/route-helpers.test.ts` 加 test cases | (a) regex 匹配：`Bearer X` / `api[_-]?key=X` / `x-api-key:?\s*X` / `Authorization:?\s*X` / bare `sk-[A-Za-z0-9_-]{20,}` / bare `sk-ant-[A-Za-z0-9_-]{40,}` / `API key provided:?\s*X` / `(API\|api)[ _]?key:?\s*X`；(b) 单测覆盖 Critic 给的具体例子：`Incorrect API key provided: sk-secret-token` → `sk-secret-token` 被替换为 `[redacted]`；(c) grep `sanitizeErrorMessage` 在 adapter 中作为 import 调用（不再各自重复 regex）；(d) tsc + tests 全过 | T02 | S |
+
+---
+
 ## 🔬 Validation-only tasks（不在 v0.2 ship scope；纯为 dogfood 验证 7/7 角色 + 跨家 cost 对比）
 
 | ID | Owner | 标题 | 触碰文件 | Acceptance | 依赖 | 工作量 |
