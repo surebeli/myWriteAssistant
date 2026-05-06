@@ -1,0 +1,23 @@
+.hopper/PING.md
+  d314ccd8ad8e1038 20-21,99-136,146,189-190
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.3.4",
+  "base_commit_sha": "a097bf12f4f7c0265380e8535830c356fdcdbafe",
+  "prompts": {
+    "d314ccd8ad8e1038": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "950fe3e5-0fa8-493d-bfb7-1c5aeb45f933",
+        "model": "claude-opus-4-7"
+      },
+      "human_author": "litianyi",
+      "messages": [],
+      "total_additions": 43,
+      "total_deletions": 2,
+      "accepted_lines": 43,
+      "overriden_lines": 0
+    }
+  }
+}
