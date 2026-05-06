@@ -1,0 +1,19 @@
+.hopper/queue.md
+  s_d314ccd8ad8e10::t_83356bd7176024 40-42
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.1",
+  "base_commit_sha": "3c35bf1e4c16bead2d7c425f0f4a0ddf683130bf",
+  "prompts": {},
+  "sessions": {
+    "s_d314ccd8ad8e10": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "950fe3e5-0fa8-493d-bfb7-1c5aeb45f933",
+        "model": "claude-opus-4-7"
+      },
+      "human_author": "litianyi <litianyi@corp.netease.com>"
+    }
+  }
+}
