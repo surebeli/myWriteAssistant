@@ -39,3 +39,45 @@ Pending Step 9 atomic commit with message `[T04] Claude adapter and smoke integr
 
 ## Next recommendation
 T07
+
+---
+
+## Leader review
+
+- **Verdict**: ✅ accept (strong)
+- **Date**: 2026-05-06T23:30:00+08:00
+- **Reviewed-by**: leader (claude-opus-4-7)
+- **Notes**:
+
+  **AC16 真正落地（这次最关键的强信号）**：
+  - spec v2 的 AC16 要求"Claude adapter 与 OpenAI-compat adapter 各发同样的 (system, userMessages)，断言 streamText 调用参数因 prepareMessages 不同而不同"
+  - T04 不仅实装 Claude（system 走独立 parameter），还**回头改了 Doubao**（system 进 messages 数组）让两条 dispatch path 真有行为差异
+  - 这是"capability flag 真转化为 behavior divergence"——T17 时 Critic v1 Issue 1 担心的"capabilities 摆设"被这次 commit 终结
+  - tests/unit/claude-adapter.test.ts assert 两 adapter 的 prepareMessages 输出 shape 不同 → 是真测试不是 type-level 应付
+
+  **架构亮点**：registry.ts 与 adapters/index.ts 解耦
+  - T02 把 `providerRegistry` 改成从 `import { adapters } from "./adapters"` 取值
+  - T04 加 Claude 时只动 `adapters/index.ts`，**不碰 registry.ts**
+  - 副作用：T-EXE-1 在 registry.ts 加的 JSDoc 不被破坏 → **预期的 T04 / T-EXE-1 在 registry.ts 的并发冲突没发生**（被架构设计天然规避）
+  - 这是 implicit 的 "interface stable, contents grow" 模式，应该写进 hopper architectural patterns 文档
+
+  **smoke command 验证**：
+  - `npm run smoke:providers -- --only=claude` 走通流程；missing key 时 SKIP 是 T13 的预期行为
+  - CI ship gate `--require-all-stable` 仍是真的把关（D2 v2 规则未变）
+
+  **Decisions/deviations 全合理**：
+  - default model `claude-sonnet-4-20250514`（snapshot ID）是 production-grade 选择
+  - Doubao prepareMessages 调整是**正确的"fix forward"**——Builder 看到 AC16 要求行为分异，主动修了上一 task 而不是装作不存在
+  - SMOKE_CLAUDE_API_KEY 缺失下走 SKIP（合规）；真上游验证靠 CI 配置 secret
+
+  **P7 (WIP leakage) 自动闭环**：
+  - Kimi 之前 flag 的 untracked `tests/unit/claude-adapter.test.ts` 被 T04 这次 commit 一并归档
+  - 但**P7 仍然是真协议 gap**——只是这次刚好自愈；下次 Builder 卡住或 multi-task 并发时还会重现
+  - P7 必须随下次 sync 上 llm-hopper main
+
+  **Strategic**：Builder 推荐 next = T07 (Kimi adapter)。**Leader 反对**：
+  - T01-T04 已成 batch，**应先跑 T15 Critic** 做 batch adversarial review
+  - 现在堆 T07/T08 不先 review，就丢失了"4 adapter 落地后回看架构"的最佳 critic 时机
+  - **建议 next = T15** (Critic, GPT-5.5 独立 session)，T15 done 后再 T07/T08
+
+- **Follow-up tasks queued**: 无（不需要新 task；只是建议 ping 顺序调整）
