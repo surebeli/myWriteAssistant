@@ -37,6 +37,19 @@ dogfood 过程沉淀的洞察，分三类：
 - **Patch**: spec D6.1 v2 改写；T18 拆 T18a (Builder bridge) + T18b (Builder-UI dialog)
 - **Upstream status**: ⏳ pending → 进 hopper "common pitfalls" 文档（待建）
 
+### F5. queue.md 是共享 mutable state，没有冲突检测——Leader 误覆盖了 Builder 的 done 翻转
+
+- **Date**: 2026-05-06
+- **Trigger**: Builder Codex ping T02 时 refuse to lock，原因是 queue.md 显示 T17 仍 pending（dep 未满足）；调查发现 Builder 的 T17 commit (`65d4f89`) 正确把 T17 改成 done + 写了 activity log，但 Leader 后续的 `e37151c` (push T-EXE-*) 把 T17 status 又"按"回 pending、并删了 T17 activity log。Edit 工具的 working-tree state 在多 session 并发时会过时
+- **Insight**: PING.md v3 没考虑 **multi-session concurrent write to queue.md**。当前流程默默假定 Worker → Leader 的 queue 修改是顺序的、Leader 看到的总是最新；实际上 Leader 的 working tree 可能 stale，subsequent Edit 会用 stale 内容覆盖
+- **Specific failure**: Edit 工具的 old_string 匹配是 substring；如果文件在 Edit 工具的"上次 read"和"实际 write"之间被外部 (Builder) 改过，Edit 仍会用 read 时的 snapshot 算 new_string，导致后续 unrelated 行被回退
+- **Patch (immediate)**: 手动恢复 T17 status = done + 补回 T17 activity log (started/done) + 加两条"reverted/restored" log 行为审计留痕
+- **Patch (protocol)**:
+  - PING.md 加 Step 0.5：Leader / Worker 改 queue.md 之前必须先 `git pull` 或重读 queue.md 确认 latest
+  - Edit 工具调用之前必须 Read 一次最新内容（Claude Code 的 Edit 已强制 Read，但 Read 缓存与外部修改之间仍可能有窗口）
+  - 终极防御：把 queue.md 改动也走 atomic commit，发现 conflict 即 rebase；queue lock-pop 与 status flip 都通过单独 commit
+- **Upstream status**: ⏳ pending → 这次 sync 时同步给 llm-hopper main 的 PING.md（加"queue.md concurrent write 风险"段落）+ HOPPER-FEEDBACK 升 (A) 类
+
 ### F4. PING.md schema v3 — Step 7.5 output artifact + Leader Review Protocol
 
 - **Date**: 2026-05-06

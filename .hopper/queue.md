@@ -16,7 +16,7 @@ Anchor: `.hopper/queue.md::root`
 |----|------|--------|---------|-------|
 | critic-v1 | critic | done |  | Re-review spec v1 + tasklist v1（出 `.hopper/handoffs/day2-critic-spec-review-v1.md`，prompt 在 `.hopper/prompts/critic-day2-spec-review.md`）|
 | T01 | builder | done |  | `src/lib/ai/` 抽象层骨架（types/registry/prompts/pricing/key-storage/request-assembly/route-helpers + adapters/ 占位）|
-| T17 | builder | pending | T01, T03 | API route 集成测试 scaffolding（vitest 已被 T03 装好；本任务只加 supertest + tests/integration/api/ + 1 sanity 测试，工作量 S）|
+| T17 | builder | done | T01, T03 | API route 集成测试 scaffolding（vitest 已被 T03 装好；本任务只加 supertest + tests/integration/api/ + 1 sanity 测试，工作量 S）|
 | T03 | builder | done | T01 | Settings store v0.2 schema + key-storage Web 实装 + `resolveProviderConfig` |
 | T13 | builder | done | T01 | Provider smoke script（支持 `--only=<id>`）|
 | T14-spike | builder | pending |  | Tauri secure storage plugin 调研（半天，**仅出 spike 文档不动代码**）|
@@ -54,5 +54,9 @@ Anchor: `.hopper/queue.md::root`
 - T03 done at 2026-05-06T16:15:46.7637383+08:00 — Upgraded settings schema, implemented Web key storage and resolveProviderConfig with unit coverage
 - T13 started at 2026-05-06T16:58:50.0501493+08:00 by builder (GPT-5.5 Codex)
 - T13 done at 2026-05-06T17:12:36.6957902+08:00 — Added provider smoke runner, npm script, CLI flags, and unit coverage
+- T17 started at 2026-05-06T17:33:52.9213253+08:00 by builder (GPT-5.5 Codex)
+- T17 done at 2026-05-06T17:39:44.6315643+08:00 — Added supertest API integration scaffold and chat route mock-provider sanity test
+- T17 status reverted to pending (lost) at e37151c by leader (claude-opus-4-7) — bug
+- T17 status restored to done at 2026-05-06T?? by leader (claude-opus-4-7) — fix for e37151c regression
 - T-EXE-2 started at 2026-05-06T?? by executor-2 (DeepSeek-V4-Flash)
 - T-EXE-2 done at 2026-05-06T?? — Added "AI provider abstraction (v0.2 进行中)" section to README.md (17 lines, 5 providers, design doc link)
