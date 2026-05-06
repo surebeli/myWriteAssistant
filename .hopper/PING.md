@@ -17,6 +17,8 @@ This file defines what any LLM CLI session should do when the user types `ping`.
 
 ## Procedure when user types `ping`
 
+> **Steps overview**：0 confirm role → 1 read queue → 2 find next → 3 lock → 4 read detail → 5 execute → 6 sanity check → 7 mark done in queue → 8 append cost log → **9 commit (atomic)** → 10 report.
+
 ### Step 0 — Confirm role
 
 If you don't know which role you're playing in this session, **ask the user** (don't guess from model name unless they've told you). Example response:
@@ -94,7 +96,44 @@ Append a row to `.hopper/COST-LOG.md`. If it doesn't exist, create it with heade
 
 Then append your row. If your CLI doesn't expose token counts, **estimate** and prefix with `~`. Never leave blank — this is dogfood data.
 
-### Step 9 — Report
+### Step 9 — Commit (atomic)
+
+**Mandatory**：本步骤把"work 文件 + queue 状态翻转 + cost log 行 + handoff 文档"打包成单一 git commit，让 PR 边界与 task 边界对齐。
+
+```bash
+git add <all files you touched in this ping cycle>
+git commit -m "[<task-id>] <one-line summary>"
+```
+
+约定：
+
+- **Prefix**：commit message 必须以 `[<task-id>]` 开头（如 `[T03]` / `[critic-v1]` / `[T18a]`）
+- **Body 建议**（非强制）：空行后写 "Files touched: ..." 与 "Acceptance: X/Y verified"
+- **不要 push**——push 是 Leader 的特权，由用户手动决定时机
+- **不要 amend** 之前的 commit——每个 task 一个新 commit
+- **不要 `--no-verify`** —— 让 hooks / lint 跑；如果失败见下方 "If commit fails"
+
+**git add 的 scope**：
+
+- 你修改的 work 文件（src/、docs/、tests/ 等）
+- `.hopper/queue.md`（含 Step 3 的 lock 与 Step 7 的 done 翻转）
+- `.hopper/COST-LOG.md`（Step 8 的新行）
+- `.hopper/handoffs/<task-id>-output.md`（如有 handoff 文档）
+- 不要 `git add .` 或 `git add -A`——精确加你 touched 的文件
+
+**If commit fails**（pre-commit hook / lint / typecheck 报错）：
+
+1. **不能 mark done 提前完成**——commit 失败 = task 没真正完成
+2. 尝试修复：读 hook 报错信息 → 改对应文件 → 重新 git add + commit
+3. 修复 3 次仍失败 → 把 queue.md 里 task status 从 `done` 退回 `in-progress`，写 `.hopper/handoffs/blocker-<task-id>.md` 描述 hook 报什么错，停止此次 ping，把控制权还给用户
+
+**Critic role 的特殊约定**：
+
+- Critic 不改产品代码，只产出 review 文档（`.hopper/handoffs/critic-*.md` 或 `day*-critic-spec-review*.md`）
+- 同样要 commit：`[<task-id>] critic review: <verdict>` + 改 queue.md / COST-LOG.md
+- Critic 的 commit 不触发 Builder PR review；它本身就是 review 产物
+
+### Step 10 — Report
 
 Format your final response:
 
@@ -104,6 +143,7 @@ Format your final response:
 Shipped: <one line>
 Files touched: <list>
 Acceptance: <X>/<Y> verified, <Z> needs manual confirm
+Commit: <short-sha> "[<task-id>] <message>"
 
 Next pending for <role>: <task-id-or-"none">
 Queue: <pending>/<in-progress>/<done>/<failed>
@@ -146,4 +186,5 @@ Leader pushes by editing `.hopper/queue.md` directly: add a row, set `Status: pe
 
 ## Schema versioning
 
-Current schema version: 1. If queue.md format ever changes incompatibly, this file will document the migration.
+Current schema version: 2 (added Step 9 atomic commit on 2026-05-06; v1 had no commit step).
+If queue.md format or protocol ever changes incompatibly, this file will document the migration.
