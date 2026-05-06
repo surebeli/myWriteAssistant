@@ -47,3 +47,38 @@ Pending Step 9 atomic commit with message `[T02] Doubao adapter and route refact
 
 ## Next recommendation
 T04
+
+---
+
+## Leader review
+
+- **Verdict**: ✅ accept (strong accept)
+- **Date**: 2026-05-06T19:30:00+08:00
+- **Reviewed-by**: leader (claude-opus-4-7)
+- **Notes**:
+
+  **T17 review explicit constraint 满足**（Leader 独立 grep 验证）：
+  - `grep -rEn "DOUBAO|createOpenAI" src/app` → 0 hits
+  - `grep -rEn "DOUBAO|createOpenAI" src/` 除 `adapters/doubao.ts` 外 → 0 hits
+  - chat/route.ts + proactive/route.ts 的 legacy env-read else-branch **彻底清除**
+
+  **三项超额交付**（spec 没硬性要求但 T02 主动做了）：
+  1. **`eslint-rules/no-route-request-console-log.mjs` 自定义 lint 规则**——把 D7 transport security 的 "route handler 不得 console.log(req.*)" 从软约束变成 lint gate。**这个产出比 spec 期望的高一档**，建议 T02 review 后写进 PING.md / spec 通用 best practice
+  2. **集成测试用 2 个 mock adapter (claude + kimi)** 测 dispatch——超过 AC2 最小要求；同时部分覆盖 AC16（capability-driven dispatch via `prepareMessages` 的 unit test 已 explicitly assert）
+  3. **`.hopper/grep-allowlist.txt` 提前建**（原 T11 owns，但 T02 顺手建好骨架）+ `Compare-Object` 验证 grep hits 与 allow-list 完全 match——给 T11 留了清晰的 maintain 起点
+
+  **Decisions/deviations 全部合理**：
+  - status-bar.tsx 的 `豆包 API` 硬编码留给 T06 处理 → 已加入 allow-list
+  - `npm run lint` 全量受阻于 `welcome-dialog.tsx` 的 react-hooks 错误（**T02 scope 外的 pre-existing issue**）；scoped lint 全过 → accept；可写一个新 task 让 Executor 单独 fix（**Leader 建议加 T-CLEAN-1**）
+  - Self-reference 用了 T13/T17 的占位法，没用 DeepSeek 的 split-commit 模式 → 不是错，只是没采纳新 idiom
+
+  **代码结构观察**：
+  - doubao.ts 100 行实现 capabilities + prepareMessages + extractUsage + normalizeError，密度合理
+  - 4 个新测试文件（integration + unit）约 21 个 test case，覆盖度足够 AC2/AC13/AC16
+  - route handler 从 ~80 行 legacy 风格压到 ~60 行 callAdapter 调用，可读性显著提升
+
+  **Strategic**：T02 done → T04（Claude adapter）unblock；同时 T05（Settings UI）也彻底 unblock。Builder 推荐 next = T04，**Leader 同意**——T04 是 critical path 上下一个解锁多家 adapter 的关键点
+
+- **Follow-up tasks queued**:
+  - 建议 Leader 加 **T-CLEAN-1** (executor) 处理 `welcome-dialog.tsx` react-hooks 错误，让 `npm run lint` 全量通过——但**不阻塞 T02 accept**，可在 ship checklist 之前任何时间做
+  - 建议 PING.md / templates 加一段提及 "Custom ESLint rules for protocol enforcement (e.g. no-route-request-console-log)" 作为 best practice — 升级到 (A) 类待 T-EXE-1 也跑完再统一 sync
