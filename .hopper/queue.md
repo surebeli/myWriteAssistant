@@ -16,7 +16,7 @@ Anchor: `.hopper/queue.md::root`
 |----|------|--------|---------|-------|
 | critic-v1 | critic | done |  | Re-review spec v1 + tasklist v1（出 `.hopper/handoffs/day2-critic-spec-review-v1.md`，prompt 在 `.hopper/prompts/critic-day2-spec-review.md`）|
 | T01 | builder | done |  | `src/lib/ai/` 抽象层骨架（types/registry/prompts/pricing/key-storage/request-assembly/route-helpers + adapters/ 占位）|
-| T17 | builder | pending | T01 | API route 集成测试 scaffolding（vitest + supertest，1 条 sanity 测试）|
+| T17 | builder | pending | T01, T03 | API route 集成测试 scaffolding（vitest 已被 T03 装好；本任务只加 supertest + tests/integration/api/ + 1 sanity 测试，工作量 S）|
 | T03 | builder | done | T01 | Settings store v0.2 schema + key-storage Web 实装 + `resolveProviderConfig` |
 | T13 | builder | pending | T01 | Provider smoke script（支持 `--only=<id>`）|
 | T14-spike | builder | pending |  | Tauri secure storage plugin 调研（半天，**仅出 spike 文档不动代码**）|
