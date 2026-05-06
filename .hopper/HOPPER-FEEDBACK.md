@@ -70,6 +70,15 @@ dogfood 过程沉淀的洞察，分三类：
 - **Action**: llm-hopper Leader prompt 加 reminder "每个 acceptance 必须 scope-qualify：whole repo / new files only / specific paths"
 - **Upstream status**: 🤔 待第二次出现再确认是规律
 
+### P5. Test infrastructure 跨 task 边界泄漏
+
+- **Trigger**: T03 acceptance 含 "单测覆盖 simple/advanced 两 mode"，Builder 必须装 vitest 才能写测试。结果 T03 实际触碰了 `vitest.config.ts` + `package.json` + 写了真 test 文件——这本来是 T17 (test scaffolding) 的 scope
+- **Insight**: 当 task X 的 acceptance 含"写测试"，但 test infra 是另一个 task，必然出现：(a) X 隐式做 infra；(b) 或 X 做完没测试。前者 scope creep，后者 acceptance 假绿
+- **Pattern 假说**：infrastructure tasks（test setup / lint config / build pipeline）必须在依赖它们的 feature task 之前完成；不能让二者并行 ready
+- **Action**: llm-hopper Leader prompt 加规则——"如果 task X 的 acceptance 含 unit test，必须依赖某个 test scaffolding task 已 done；不能让二者只共享同一个 prereq"
+- **Local fix**: T17 acceptance + 依赖已更新（依赖加 T03，scope 缩到 supertest + integration scaffolding，工作量 M → S）
+- **Upstream status**: 🤔 待第二次出现确认是规律；如出现则升 (A) 类同步
+
 ### P4. ping `--task=<id>` 任务级 override
 
 - **Trigger**: 当前 ping 按 lex order 选下一个；但 strategic 上 T17（集成测试 scaffolding）比 T03（settings store）更紧迫——T17 通过后能解锁更多并行
