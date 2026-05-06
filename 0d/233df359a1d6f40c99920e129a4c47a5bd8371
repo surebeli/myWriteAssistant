@@ -1,0 +1,23 @@
+.hopper/HOPPER-FEEDBACK.md
+  s_d314ccd8ad8e10::t_f0bb7640e313f0 73-81
+.hopper/DOGFOOD.md
+  s_d314ccd8ad8e10::t_e63c756e862cf5 86-87
+.hopper/handoffs/leader-tasklist.md
+  s_d314ccd8ad8e10::t_e666e4fa359651 42
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.1",
+  "base_commit_sha": "0d233df359a1d6f40c99920e129a4c47a5bd8371",
+  "prompts": {},
+  "sessions": {
+    "s_d314ccd8ad8e10": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "950fe3e5-0fa8-493d-bfb7-1c5aeb45f933",
+        "model": "claude-opus-4-7"
+      },
+      "human_author": "litianyi <litianyi@corp.netease.com>"
+    }
+  }
+}
