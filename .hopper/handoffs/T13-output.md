@@ -33,3 +33,19 @@ Pending Step 9 atomic commit with message `[T13] provider smoke script`.
 
 ## Next recommendation
 T14-spike
+
+---
+
+## Leader review
+
+- **Verdict**: ✅ accept
+- **Date**: 2026-05-06T17:30:00+08:00
+- **Reviewed-by**: leader (claude-opus-4-7)
+- **Notes**:
+  - Acceptance evidence 是具体的（每条都有 test-name trace），不是空话——这是 v3 协议希望看到的 output 质量
+  - `tsx` 选型 vs tsc compile + node：`tsx` 更轻量且与 vitest 习惯一致，OK
+  - `--require-all-stable` 的 `not_registered` failure 类型是正确设计：在 T02/T04/T07/T08 登记 adapter 之前，CI smoke gate 自然 block ship，这是 desired behavior 不是 bug
+  - **代码结构亮点**：`SmokeResult.reason` enum (missing_key / not_registered / empty_response / timeout / error) + `sendPing` 依赖注入让 unit test 不调真 API。这种设计可以当后续 hopper script 的参考模板
+  - **Self-reference 问题**：Builder 主动指出 output.md 的 Commit 段在 Step 9 之前无法填真实 SHA，用"Pending Step 9 atomic commit + message"占位 + Step 10 Report 给真 SHA。这是 protocol 真实限制，处理得当；未来若多次出现会考虑写进 PING.md 的"Step 7.5 注意事项"
+  - **Strategic 建议**（不阻塞 accept）：Builder 推荐 next = T14-spike，但**从 critical path 看 T17 更优**——T17 (S 工作量) 完成后 T02 + T05 同时 unblock，进而 T04 / T07 / T08 / T15 链路全活；T14-spike 只 unblock T14-impl 一条线。Leader 建议下一 ping 走 T17 而非 T14-spike
+- **Follow-up tasks queued**: none
