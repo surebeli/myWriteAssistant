@@ -37,6 +37,9 @@ Anchor: `.hopper/queue.md::root`
 | T16 | critic | pending | T09, T10 | PR diff review batch 2（cost dashboard，出 `critic-T09-T10.md`）|
 | T-EXE-1 | executor-1 | done | T01 | 🔬 [validation-only] 给 src/lib/ai/ public exports 加 JSDoc 注释（不改 logic；tsc 仍过）|
 | T-EXE-2 | executor-2 | done | T01 | 🔬 [validation-only] README.md 加 "AI provider abstraction (v0.2 进行中)" 小节（15-30 行，不动现有段落）|
+| T02-rework | builder | pending | T02 | **[REWORK from Critic T15]** wire resolveProviderConfig 进 use-chat + use-proactive；同时 fix proactive bare error 到 sanitized contract |
+| T-OPENAI | builder | pending | T04, T13 | **[REWORK from Critic T15]** OpenAI adapter（registry-only，同 Kimi/DeepSeek 模式；填补 5-stable 缺口）|
+| T-SANITIZER-FIX | builder | pending | T02 | **[REWORK from Critic T15]** 扩展 sanitizer regex（bare sk-.../sk-ant-.../whitespace label/x-api-key forms）+ 统一所有 adapter normalizeError 走共享函数 |
 
 ---
 
