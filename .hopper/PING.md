@@ -25,7 +25,7 @@ This file defines what any LLM CLI session should do when the user types `ping`.
 
 ## Procedure when user types `ping`
 
-> **Steps overview**：0 confirm role → 1 read queue → 2 find next → 3 lock → 4 read detail → 5 execute → 6 sanity check → 7 mark done in queue → **7.5 write output artifact** → 8 append cost log → 9 commit (atomic) → 10 report.
+> **Steps overview**：0 confirm role → **0.5 refresh shared state** → 1 read queue → 2 find next → 3 lock → 4 read detail → 5 execute → 6 sanity check → 7 mark done in queue → 7.5 write output artifact → 8 append cost log → 9 commit (atomic) → 10 report.
 
 ### Step 0 — Confirm role
 
@@ -34,6 +34,17 @@ If you don't know which role you're playing in this session, **ask the user** (d
 > "I need to know my role first. Available roles in this project: researcher / leader / builder / builder-ui / executor-1 / executor-2 / critic. Which one am I in this session?"
 
 Once told, treat that as your role for the rest of this session. (Form `ping <role>` overrides one-shot.)
+
+### Step 0.5 — Refresh shared state（v4 新增）
+
+在 read 或 modify 任何 `.hopper/` 下的 shared file（特别是 `queue.md`）之前，**强制 fresh Read from disk**——不要依赖 session 之前的 cache / context。其他 session（sibling Worker / Leader）可能已经更新过。
+
+当对 shared file 用 `Edit` 工具时：
+
+- Edit 的 staleness check（Read-then-Edit 守卫）是最后防线，**不要绕过**
+- Edit 失败要求 re-Read 时，**必须先 Read 再 Edit**，不要强写覆盖
+
+**为什么需要这条规则**：dogfood 中发现 Leader 用 Edit 给 `queue.md` 加新 task 时，working tree 是 stale snapshot（落后于磁盘），unrelated 行被回退（HOPPER-FEEDBACK F5）。Step 0.5 把这种风险压到最小。
 
 ### Step 1 — Read queue
 
@@ -71,13 +82,18 @@ Do the work per Acceptance criteria. Use whatever tools you have (Read / Edit / 
 
 ### Step 6 — Sanity check before claiming done
 
-Don't mark `done` until every Acceptance bullet for the task is verified:
+Don't mark `done` until every Acceptance bullet for the task is verified, **限定本 task 自己 touched 的文件 / 模块**（v4 修订）：
 
 - File-existence checks → confirm with `ls` / Glob
-- `tsc --noEmit` style checks → run them
-- Grep checks → run them
-- Test checks → run them
+- **Type / build checks**：scope to task-touched files where possible；如发现全 repo `tsc --noEmit` 报错但来自 sibling session 的 untracked WIP / 不相关 pre-existing 错误，**不阻塞本 task**——在 output.md "Decisions / deviations" 段标注 "external blocker, not from this task"
+- **Lint checks**：scoped lint（`npx eslint <touched-files>`）；不跑 `npm run lint` 全量
+- **Test checks**：可以全跑（tests 通常隔离），但若 fail 不关 task → deviation 段说明，不阻塞 acceptance
+- Grep checks → run them（按 spec 给的 pattern）
 - Manual verification → state explicitly "manual verification needed: <describe what user should check>" and leave Status `in-progress` until user confirms
+
+**原则**：acceptance 失败必须能 trace 到本 task 自己 touched 的文件；otherwise 在 output.md 标注 external，不阻塞。
+
+**为什么需要这条规则**：dogfood 中 Executor (Kimi) 跑 tsc 时被 sibling Builder 的 untracked WIP file 污染（HOPPER-FEEDBACK P7）。scope-qualify 让 acceptance 在并发场景下仍可信。
 
 ### Step 7 — Mark done
 
@@ -296,10 +312,19 @@ git commit -m "[review:<task-id>] <verdict>: <one-line>"
 
 ---
 
-## Concurrency notes
+## Concurrency notes（v4 expanded）
 
-- This protocol is **not race-safe**. Don't `ping` simultaneously in two sessions for the same role
-- If you find a task in `in-progress` matching your role, that means another session has it (or crashed mid-execution). Pick next eligible OR report `Stalled: <task-id> in-progress for <duration>; do you want me to override?` Don't auto-take a stalled task
+This protocol is **not race-safe**. When multiple sessions share a working directory:
+
+1. **Don't `ping` simultaneously in two sessions for the same role** — 会同时 lock 同一 task
+2. **Don't assume queue.md is current** — Step 0.5 强制重读，每次 ping 起手都 fresh from disk
+3. **Don't run acceptance check on whole repo** — Step 6 要求 scope to task-touched files；并发 session 的 WIP 可能污染全 repo 检查
+4. **WIP file leakage 防御**：Step 5 期间创建的未 commit 临时文件（test stub / scaffold without paired implementation），sibling session 的 tsc include 会编译它们：
+   - 优先方案：把 WIP 限定到 task scope 内一起 commit；不要让 stub 文件长期 untracked
+   - 备选：`tests/_wip/<task-id>/` 临时目录配合 `.gitignore`，commit 时统一归档
+   - 进阶：每个 worker session 用独立 `git worktree`（磁盘多但隔离强）
+5. **Stalled task**：如果你找到 `in-progress` matching your role 但 timestamp 已超 30min，可能是 crash 或前 session 中断。回报给用户决定是否 take over，不自动接管
+6. **Edit 工具 staleness check 是最后防线** — 别绕过。Edit 失败要求 re-Read 时**必须先 Read 再 Edit**
 
 ## Push protocol
 
@@ -319,6 +344,7 @@ Leader pushes by editing `.hopper/queue.md` directly: add a row, set `Status: pe
 |---------|------|--------|
 | v1 | 2026-05-06 | Initial: 9 steps without commit |
 | v2 | 2026-05-06 | Added Step 9 atomic commit; renumbered Report to Step 10 |
-| **v3** | **2026-05-06** | **Added Step 7.5 (output artifact required) + Leader Review Protocol (`review` family)；解决 worker → leader feedback 的协议 gap** |
+| v3 | 2026-05-06 | Added Step 7.5 (output artifact required) + Leader Review Protocol (`review` family)；解决 worker → leader feedback 的协议 gap |
+| **v4** | **2026-05-07** | **Added Step 0.5 (refresh shared state) + Step 6 acceptance scope-qualify + Concurrency notes expansion. Mitigations for F5 (queue concurrent-write) and P7 (WIP leakage) discovered in myWriteAssistant dogfood.** |
 
 If queue.md format or protocol ever changes incompatibly, future versions will document the migration here.
