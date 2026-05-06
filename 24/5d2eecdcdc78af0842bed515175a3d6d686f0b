@@ -1,0 +1,23 @@
+.hopper/handoffs/critic-T01-T04.md
+  s_d314ccd8ad8e10::t_9b659520b76554 92-127
+.hopper/handoffs/leader-tasklist.md
+  s_d314ccd8ad8e10::t_d375f6666fef63 48-57
+.hopper/HOPPER-FEEDBACK.md
+  s_d314ccd8ad8e10::t_09e25ffd8a5e74 126-135
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.1",
+  "base_commit_sha": "245d2eecdcdc78af0842bed515175a3d6d686f0b",
+  "prompts": {},
+  "sessions": {
+    "s_d314ccd8ad8e10": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "950fe3e5-0fa8-493d-bfb7-1c5aeb45f933",
+        "model": "claude-opus-4-7"
+      },
+      "human_author": "litianyi <litianyi@corp.netease.com>"
+    }
+  }
+}
