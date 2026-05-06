@@ -61,3 +61,4 @@ Builder (GPT-5.5) ─┬─ Builder-UI (Gemini) ─┬─ Executor (Kimi/DeepSee
 | 日期 | 修改 | 由 |
 |------|------|---|
 | 2026-05-06 | 初始绑定 | litianyi（与 Claude 协作建立） |
+| 2026-05-06 | 短暂 swap executor-primary 与 secondary，又回退到初始绑定（原因：维持原 task-LLM 配对意图——T-EXE-1 用 Kimi 长 ctx 吃 7 文件；T-EXE-2 用 DeepSeek-flash 便宜单文件）| litianyi |
