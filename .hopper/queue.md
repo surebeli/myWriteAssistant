@@ -18,7 +18,7 @@ Anchor: `.hopper/queue.md::root`
 | T01 | builder | done |  | `src/lib/ai/` 抽象层骨架（types/registry/prompts/pricing/key-storage/request-assembly/route-helpers + adapters/ 占位）|
 | T17 | builder | pending | T01, T03 | API route 集成测试 scaffolding（vitest 已被 T03 装好；本任务只加 supertest + tests/integration/api/ + 1 sanity 测试，工作量 S）|
 | T03 | builder | done | T01 | Settings store v0.2 schema + key-storage Web 实装 + `resolveProviderConfig` |
-| T13 | builder | pending | T01 | Provider smoke script（支持 `--only=<id>`）|
+| T13 | builder | done | T01 | Provider smoke script（支持 `--only=<id>`）|
 | T14-spike | builder | pending |  | Tauri secure storage plugin 调研（半天，**仅出 spike 文档不动代码**）|
 | T02 | builder | pending | T01, T17 | Doubao adapter + chat/proactive route refactor + error sanitizer |
 | T05 | builder-ui (+ builder pair on wiring) | pending | T03, T17 | Settings AI UI + 接通 `resolveProviderConfig` + 空状态引导 |
@@ -50,3 +50,5 @@ Anchor: `.hopper/queue.md::root`
 - T01 done at 2026-05-06T15:01:24.5773153+08:00 — Added AI abstraction skeleton, adapter registry stubs, route helper contract, and passing tsc compatibility
 - T03 started at 2026-05-06T16:07:20.0158527+08:00 by builder (GPT-5.5 Codex)
 - T03 done at 2026-05-06T16:15:46.7637383+08:00 — Upgraded settings schema, implemented Web key storage and resolveProviderConfig with unit coverage
+- T13 started at 2026-05-06T16:58:50.0501493+08:00 by builder (GPT-5.5 Codex)
+- T13 done at 2026-05-06T17:12:36.6957902+08:00 — Added provider smoke runner, npm script, CLI flags, and unit coverage
