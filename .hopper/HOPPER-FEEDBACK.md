@@ -145,6 +145,14 @@ dogfood 过程沉淀的洞察，分三类：
 - 劣势：commit message 与 task ID 不再 1:1（commit `[T02-rework]` 含原 scope 外的改动）；attribution 需要查 output.md 的 deviation 段
 - **协议建议**：fold 模式 OK 但 deviation 段必填，且 Leader review 必须 explicit acknowledge fold；不允许默默扩 scope
 
+### O12. Single-ping done 是 PING 协议 happy path 常态（vindication）
+
+- T-SANITIZER-FIX：用户输入"ping T-SANITIZER-FIX"，Builder 自动 pop / 实装 / 测试 / output.md / commit / report，**全程 0 out-of-band prose**
+- 11 个已 done task 中 10 个走这种"单 ping → done"流程；唯一例外是 T02-rework（3 轮 manual verify）
+- **结论**：用户感受到的"ping 需要太多指令"是 T02-rework 这一个 task 的局部偏见放大，**不是协议设计本身的崩塌**
+- 协议设计 vindicate：原"ping → 自动 pop → done"flow 在 90% 场景下成立；剩 10% 是 manual-verify cycle 触发的 prose-heavy mode（这是 design intent）
+- **协议改进方向不变**：v5 patch 仍值得做（Step 0.5 扩 PING.md re-read / `ping --task` / Leader feedback file），但优先级不再"紧急修复 prose 爆炸"，而是"小改进让协议更顺"
+
 ### O11. Cost 三轮迭代 ~$0.85 vs 单轮估 ~$0.30 — manual verify 的真实成本
 
 - T02-rework 总 cost ~$0.85 / ~105k tokens，明显高于单轮 L task 估算
