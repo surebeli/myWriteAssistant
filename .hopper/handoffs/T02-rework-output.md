@@ -42,3 +42,39 @@ pending — atomic commit will use message `[T02-rework] wire client hooks; fold
 
 ## Next recommendation
 Next high-priority builder rework is T-SANITIZER-FIX or T-OPENAI per Leader priority; queue lexicographic default would pick T-OPENAI, but T-SANITIZER-FIX is another Critic T15 ship-risk item.
+
+---
+
+## Leader review
+
+- **Verdict**: ✅ accept (strong)
+- **Date**: 2026-05-07T03:30:00+08:00
+- **Reviewed-by**: leader (claude-opus-4-7)
+- **Notes**:
+
+  **Critic T15 Findings 闭环情况**：
+  - **Finding #1** (client/server contract break)：✅ 闭环——use-chat.ts 第 61-69 行 + use-proactive.ts 第 58-66 行均 resolve providerConfig + requestId 后 POST，正确 body shape
+  - **Finding #4** (proactive bare error)：✅ 闭环——route 第 38 行返 `code: "missing_sentence"` sanitized contract
+  - **Finding #5** (T04 not live-smoked)：✅ 部分闭环——本 task **真的对 Doubao 做了 live smoke**（3 轮 manual verify）；这是 v0.2 第一次真打到上游 provider；T04 Claude 仍未 live-smoke
+  - Findings #2 / #3 不在本 task scope（属 T-OPENAI / T-SANITIZER-FIX）
+
+  **3 轮 manual verify 暴露的 hidden bug 与处理**：
+  - **第 1 轮**：Doubao 返 403 AccessDenied at `/responses` endpoint。Builder fold 修：`provider() → provider.chat()` 强制 chat completions 路由
+  - **第 2 轮**：response body 有内容但 UI 空。Builder fold 修：route 的 `toTextStreamResponse()` → 自实现 data stream encoder（`route-helpers.ts` 的 `createDataStreamResponse`），因 ai@6.0.64 不暴露 `toDataStreamResponse()`
+  - **第 3 轮**：✅ UI 流式显示，end-to-end work
+  - **关键观察**：每个 fold 都伴随 regression 测试（doubao-adapter.test.ts 加 chat() 路由断言；chat/proactive route test 加 `0:"text"\n` protocol 断言）。Builder 不只 fix 还 lock 防回退
+
+  **代码质量亮点**：
+  - 9/9 acceptance 全部具体到 file path + assertion；manual verification 这条留 "Leader confirmed" 是诚实做法不是装作机械可验证
+  - `tests/integration/client/hooks-request-body.test.tsx` 新增 194 行——覆盖 mocked `resolveProviderConfig` / `generateRequestId` + body shape 断言；这种"client-side integration test"模式以前没有，Builder 主动建立 pattern
+  - `route-helpers.ts` 的 `createDataStreamResponse` 是合理 workaround——AI SDK 升级后回归原生 API 时易拆，commit message 已说明背景
+
+  **Cost 观察**：~$0.85 / ~105k tokens——比常规 L 级 task 贵 3-4x，但因为是 **3 轮 iteration**（每轮包括 read context + fix + test + report）。这暴露 manual verification cycle 的 cost 真实——值得在 essay 里讨论"protocol 多轮 cost vs 协议简化省时但漏 bug"的 trade-off
+
+  **Strategic next**：
+  - Builder 推荐 next = T-SANITIZER-FIX or T-OPENAI（lex order T-OPENAI 先），与 Leader 想法一致——**T-SANITIZER-FIX 优先**（Critic Finding #3 ship-risk，与 T02 同源；T-OPENAI 是补 5-stable gate 但不阻塞核心）
+  - 注意 T07/T08/T-OPENAI 都将复用 OpenAI-compat 模式（共享 Doubao 已修的 `provider.chat()` pattern + data stream encoder）；如 Builder 之前没在那些 adapter 复用 doubao 模板，要 explicit 加约束
+
+- **Follow-up tasks queued**: 
+  - 无新 task，但 HOPPER-FEEDBACK 将记一组观察（live-smoke 必要性 / SDK 版本飘移 / manual verify 必须循环 / Builder 多轮 fold 修复模式）
+  - PING.md 可能升 v5：adapter-touching tasks 必须含 live smoke against real upstream（实施成本：每 adapter task 多 5-10 分钟手工，但 catch ship-blocker bug 的 ROI 巨大）

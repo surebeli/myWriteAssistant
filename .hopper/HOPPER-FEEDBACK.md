@@ -123,6 +123,35 @@ dogfood 过程沉淀的洞察，分三类：
 - **Action**: 升级为 (A) 类 patch 候选——PING.md Step 7.5 可加 "Recommended pattern: split commit for SHA backfill"；但要在更多 task 验证后再钉死，避免过早 over-prescribe
 - **Status**: 🤔 待 T-EXE-1（Kimi）跑完看是否独立想到同样模式（强信号）or 用占位（弱信号）；决定是否升级为协议要求
 
+### O8. Live-smoke against real upstream 抓到 mock+Critic+Leader 全 miss 的 production-only bug（强 essay 素材）
+
+- T02-rework manual verify 3 轮，2 轮失败暴露 hidden bugs：
+  - 第 1 轮：Doubao adapter `provider(model)` 在 ai@6.x 默认 routes 到 `/responses` endpoint，Doubao 不支持 → 403 AccessDenied。Mock 测试（`createMockAdapter` 等）从不调真 SDK，从不暴露此问题
+  - 第 2 轮：route 用 `toTextStreamResponse()`（plain text），client `use-chat.ts` 期待 `0:"text"\n` data stream protocol。Mock 测试 mock 了 stream 但没检查 wire format
+- **关键观察**：每个 layer（Builder + Critic + Leader）的 review都基于 source code → mock test 闭环，**全 miss 真打 upstream 才会暴露的 wire-level mismatch**。这不是某个 reviewer 不努力，是 mock 测试的内在限制
+- **协议含义（升级到 P9）**：adapter-touching tasks（含 T02 / T04 / T07 / T08 / T-OPENAI / T-DOUBAO / T-EXE-X 任何动 src/lib/ai/adapters）必须有 acceptance bullet "live smoke against real upstream with real key"。否则 mock 通过不等于 production 通过
+- **essay 素材**：Critic T15 Finding #5 已经预警过（"T04 not live-smoked"），但当时 Leader 接受了 deferral。本 task 印证预警——deferral 是错误的；必须每个 adapter task 自带 live-smoke gate
+
+### O9. 每轮 manual verify 都可能暴露 new bug（"fix once and done"假设破产）
+
+- T02-rework manual verify 暴露 **2 个独立 bug，源头不同**（adapter routing + stream protocol），不是同一个问题的两面
+- 一轮 fix 完后看似该 work，但下一轮 verify 又暴露新一层错配
+- **协议含义**：manual verify 必须**循环直到真 work**，不能"修第一个就 done"。Step 6 "manual verification needed" 路径本身就是循环 gate 的设计意图，但需要在 PING.md 显式说"manual verify 失败 → fix → 重 verify，循环至 pass"
+
+### O10. Builder 多轮 fold 修复模式 vs 拆 task 路径
+
+- T02-rework 流程：Builder fold 了 2 个独立 fix 进 in-progress task，没拆 T-DOUBAO-FIX / T-STREAM-FIX 新 task
+- 优势：3 个改动 1 个 commit + 1 个 review cycle，效率高 30%；Builder context 不切换
+- 劣势：commit message 与 task ID 不再 1:1（commit `[T02-rework]` 含原 scope 外的改动）；attribution 需要查 output.md 的 deviation 段
+- **协议建议**：fold 模式 OK 但 deviation 段必填，且 Leader review 必须 explicit acknowledge fold；不允许默默扩 scope
+
+### O11. Cost 三轮迭代 ~$0.85 vs 单轮估 ~$0.30 — manual verify 的真实成本
+
+- T02-rework 总 cost ~$0.85 / ~105k tokens，明显高于单轮 L task 估算
+- 主要消耗在：每轮 manual fail 后 Builder 重读 context + fix + 重跑 tests + 重写 deviation 段
+- **trade-off**：协议多轮成本 vs 单轮 ship 但漏 bug → ship 后修 bug 的 cost。前者明显划算（每个 fold 在 in-progress gate 内修，不 break 已 ship code）
+- **essay 角度**：vendor-agnostic + multi-LLM 协作的真实成本结构——单轮 L task ~$0.30 是理想态；现实是多轮 iteration 把成本拉到 2-3x，但每次 iteration 都是 catch 真 bug 的机会，不是浪费
+
 ### O7. Critic batch review 抓到 Leader review 全部 miss 的 3 个 P1 ship-blockers（最强 essay 素材）
 
 - T15 (Critic, GPT-5.5 fresh session, $0.65) 在 T01-T04 batch review 中抓到 3 个 ship-blocking 问题，全部是 Leader（Claude Opus，me）做 T02/T04 review 时**完全没注意到**的：
