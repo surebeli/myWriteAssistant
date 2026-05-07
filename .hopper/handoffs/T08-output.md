@@ -36,7 +36,7 @@ none
 
 ## Commit
 
-待 Step 9 完成后填入。
+ff5dc38 "[T08] Add registry-only DeepSeek adapter with OpenAI-compatible SDK, shared sanitizer, unit coverage, and smoke path verification"
 
 ## Next recommendation
 
