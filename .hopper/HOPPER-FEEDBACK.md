@@ -160,7 +160,7 @@ dogfood 过程沉淀的洞察，分三类：
 
 | Task | Effort | Owner（含 thinking-mode）| 期望 cost | 真实 cost | 质量 vs Round 1 |
 |------|--------|--------------------------|---------|---------|----------------|
-| T07 (Kimi adapter) | S | builder-single = **gpt-5.5-high** | $0.10-0.20 | (待跑) | **控制基线** |
+| T07 (Kimi adapter) | S | builder-single = **gpt-5.5-high** | $0.10-0.20 | ~$0.32 (+60% vs upper) | pass-trivial 控制基线 |
 | T08 (DeepSeek adapter) | S | pair-A = **kimi-thinking + deepseek-flash** | $0.04-0.08 | (待跑) | vs T07 |
 | T09 (Cost recording) | M | pair-B = **mimo-pro + deepseek-flash** | $0.06-0.12 | (待跑) | vs Round 1 M task |
 | T18a (Migration bridge) | M | pair-C = **deepseek-pro + gemini-flash** | $0.05-0.10 | (待跑) | vs T09 (cross-pair compare) |
@@ -168,6 +168,10 @@ dogfood 过程沉淀的洞察，分三类：
 | T05 (Settings UI) | L | builder-ui = **gemini** | $0.20-0.50 | (待跑) | UI 角色实战 |
 
 **预期 Round 2 总开销**：~$0.50-1.10（vs Round 1 $2.20，预期降 50-75%）。+ 6 个 critic review 各 ~$0.20-0.40 = +$1.20-2.40。Round 2 总 ~$1.70-3.50（critic 是大头）。
+
+**Cost audit observations**：
+
+- **T07 actual cost overrun**（2026-05-07, leader light review）：builder-single `gpt-5.5-high` 跑 S-effort Kimi adapter 实际 `~$0.32`，高于 `$0.10-0.20` 预期区间上限 60%。质量 light review 为 `pass-trivial`，说明控制组质量 OK，但 gpt-5.5-high 的 adapter baseline cost 仍偏贵；T08 pair-A 的 cost/quality 对照更关键。
 
 **核心 essay #2 数据点**：
 

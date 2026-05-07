@@ -33,3 +33,21 @@ Pending Step 9 atomic commit with message `[T07] Kimi adapter and smoke integrat
 
 ## Next recommendation
 T08
+
+---
+
+## Leader review (light): pass-trivial
+
+- Date: 2026-05-07T14:29:35.2159349+08:00
+- Reviewed-by: leader-primary (gpt-5.5-xhigh)
+- Status: done
+- Commit reviewed: f3365a6 `[T07] Kimi adapter and smoke integration`
+- Evidence checked:
+  - `git show f3365a6 --stat` is limited to expected adapter/test/hopper files: new `kimi.ts`, registry export, focused unit/smoke tests, queue/cost/output artifacts.
+  - Critical diff review found no UI edits and follows the existing OpenAI-compatible adapter pattern (`provider.chat(config.model)`).
+  - Current official Kimi docs confirm `https://api.moonshot.ai/v1` and `kimi-k2.6` as valid defaults.
+  - Fresh verification: `npm test -- tests/unit/kimi-adapter.test.ts tests/unit/test-providers.test.ts` passed 2 files / 13 tests; scoped `npm run lint -- ...` exited 0; `npx tsc --noEmit` exited 0; `npm run smoke:providers -- --only=kimi` exited 0 with expected `SKIPPED kimi (missing_key)`.
+- Notes:
+  - Builder output's Commit field still contains the pre-commit placeholder; actual reviewed commit is f3365a6. Non-blocking protocol self-reference artifact.
+  - Cost audit found actual cost `~$0.32` vs expected `$0.10-0.20`, a +60% deviation over the upper bound; observation recorded in `.hopper/HOPPER-FEEDBACK.md`.
+- Follow-up: none; no Critic escalation under the Round 2 light-review rule.
