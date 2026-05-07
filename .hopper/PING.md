@@ -12,6 +12,7 @@ This file defines what any LLM CLI session should do when the user types `ping`.
 
 - `ping` — pop the next eligible task for **this session's role**
 - `ping <role>` — explicit override: pop next task for `<role>` regardless of session role
+- `ping <task-id>` or `ping --task=<task-id>` — **(v5 新增)** pop a specific task by ID, bypassing lex/priority sort（仍需 role 匹配 + deps 满足 + status pending）
 - `ping --status` — show queue summary, do not modify anything
 - `ping --dry` — show what `ping` would pop, do not modify anything
 
@@ -35,9 +36,11 @@ If you don't know which role you're playing in this session, **ask the user** (d
 
 Once told, treat that as your role for the rest of this session. (Form `ping <role>` overrides one-shot.)
 
-### Step 0.5 — Refresh shared state（v4 新增）
+### Step 0.5 — Refresh shared state（v4 新增；v5 扩展）
 
-在 read 或 modify 任何 `.hopper/` 下的 shared file（特别是 `queue.md`）之前，**强制 fresh Read from disk**——不要依赖 session 之前的 cache / context。其他 session（sibling Worker / Leader）可能已经更新过。
+在 read 或 modify 任何 `.hopper/` 下的 shared file（特别是 `queue.md` 与 `PING.md` 本身）之前，**强制 fresh Read from disk**——不要依赖 session 之前的 cache / context。其他 session（sibling Worker / Leader）可能已经更新过。
+
+**v5 扩展**：每次 ping 起手必须 fresh-read 包括 `.hopper/PING.md`。理由：协议自身在 dogfood 中频繁演化（v1 → v4 共 3 次 schema bump in 2 天），session 持有的旧版本 cache 与磁盘最新可能错配；Worker 不重读 PING 会按旧协议执行新 task，导致 step 缺漏（如 v3 引入的 Step 7.5 不写 output.md）。
 
 当对 shared file 用 `Edit` 工具时：
 
@@ -48,19 +51,24 @@ Once told, treat that as your role for the rest of this session. (Form `ping <ro
 
 ### Step 1 — Read queue
 
-Read `.hopper/queue.md`. The queue is a markdown table; each row is a task with fields: `ID / Role / Status / Depends / Brief`.
+Read `.hopper/queue.md`. The queue is a markdown table; each row is a task with fields: `ID / Role / Status / Depends / Brief`. **(v5)** 可选 `Priority` 列（值：`high` / `normal` / `low`）；若 row 无该列或值为空，按 `normal` 处理。
 
 ### Step 2 — Find next eligible task
 
-Among rows where:
+**(v5)** 如果 user 用 `ping <task-id>` / `ping --task=<id>` 形式：跳到该 task；仍需验证 (a) `Role` 匹配 session role；(b) `Status: pending`；(c) 所有 `Depends` 已 done。任一不满足 → 拒绝并报"task <id> 不 eligible（原因：role mismatch / status / deps）"。
+
+否则（无 task-id override），从所有 row 中过滤：
 
 1. `Role` matches your current session role (or the override role)
 2. `Status: pending`
 3. **All** task IDs in `Depends` have `Status: done` somewhere in the queue
 
-Pick the row with the **lowest task ID** (lexicographic on T## works; `critic-v1` etc. by definition order).
+排序：
 
-If no eligible task: respond `No eligible tasks for <role>. Queue: <X> pending / <Y> in-progress / <Z> done.` End procedure.
+- **(v5)** 先按 `Priority` 降序（`high` > `normal` > `low`；空值视为 `normal`）
+- 同 priority 内按 **task ID lexicographic**（T## 字典序；`critic-v1` 等按字面顺序）
+
+挑第一行。若无 eligible task：respond `No eligible tasks for <role>. Queue: <X> pending / <Y> in-progress / <Z> done.` End procedure.
 
 ### Step 3 — Lock (pop)
 
@@ -312,6 +320,50 @@ git commit -m "[review:<task-id>] <verdict>: <one-line>"
 
 ---
 
+## Leader Feedback Channel（v5 新增）
+
+当 Leader 需要给一个 in-progress 的 Worker 推送 diagnosis / 中途调整（典型场景：manual verify 失败带具体诊断 + fix 方案），不要走 chat prose——走结构化文件：
+
+```
+.hopper/handoffs/<task-id>-leader-feedback.md
+```
+
+**Schema**：
+
+```markdown
+# <task-id> — Leader Feedback (round N)
+
+- Date: <ISO>
+- Leader: <model name>
+- Round: <N>
+
+## Diagnosis
+
+<root cause analysis based on Leader inspection of artifacts>
+
+## Required fix
+
+<concrete code/spec changes Worker should fold into in-progress task>
+
+## Re-verify after fix
+
+<what Leader will check on next round; e.g. "manual chat with default Doubao again">
+```
+
+**Worker 协议**：
+
+- 在 Step 5 (Execute) 期间，如果 Leader 通知"feedback file 已写"或者你完成 manual verify gate 失败时主动 check 该文件
+- Read `.hopper/handoffs/<task-id>-leader-feedback.md`，按 "Required fix" 段执行
+- 修复后在同一文件追加 "## Round N response" 段说明改动；不要新建文件，保持单一 audit trail
+- 修复完成后回到 Step 6 sanity check，等 Leader 下一轮 verify
+
+**Leader 协议**：
+
+- 永不在 chat 里贴 diagnosis 给 Worker；改写 `.hopper/handoffs/<task-id>-leader-feedback.md` 然后告诉 Worker "feedback 已落盘，请读"
+- 这样 audit trail 留在文件里，未来 review / retro 可回放完整诊断 → 修复 cycle
+
+**为什么需要这条规则**：dogfood 期间 T02-rework 3 轮 manual verify 全靠 Leader→Worker chat prose 传递诊断，导致 (a) audit trail 散落在对话历史里、(b) Worker session 切换时 context 丢失、(c) 用户体感"指令转发太多"。Leader Feedback Channel 把这种交流落盘，符合协议"file system as source of truth"原则。
+
 ## Concurrency notes（v4 expanded）
 
 This protocol is **not race-safe**. When multiple sessions share a working directory:
@@ -345,6 +397,7 @@ Leader pushes by editing `.hopper/queue.md` directly: add a row, set `Status: pe
 | v1 | 2026-05-06 | Initial: 9 steps without commit |
 | v2 | 2026-05-06 | Added Step 9 atomic commit; renumbered Report to Step 10 |
 | v3 | 2026-05-06 | Added Step 7.5 (output artifact required) + Leader Review Protocol (`review` family)；解决 worker → leader feedback 的协议 gap |
-| **v4** | **2026-05-07** | **Added Step 0.5 (refresh shared state) + Step 6 acceptance scope-qualify + Concurrency notes expansion. Mitigations for F5 (queue concurrent-write) and P7 (WIP leakage) discovered in myWriteAssistant dogfood.** |
+| v4 | 2026-05-07 | Added Step 0.5 (refresh shared state) + Step 6 acceptance scope-qualify + Concurrency notes expansion. Mitigations for F5 (queue concurrent-write) and P7 (WIP leakage) discovered in myWriteAssistant dogfood. |
+| **v5** | **2026-05-07** | **Step 0.5 also re-reads PING.md（不只 queue.md）；新增 `ping <task-id>` / `--task=<id>` form 用 task-level override 替代"do X next"prose；新增 Leader Feedback Channel via `.hopper/handoffs/<task-id>-leader-feedback.md` 文件替代 manual verify diagnosis 走 chat；queue.md 加可选 Priority 列。消除 80% out-of-band Leader→Worker prose dispatch。Mitigations for HOPPER-FEEDBACK O8/O9/O10/P4/P9 from T02-rework cycle.** |
 
 If queue.md format or protocol ever changes incompatibly, future versions will document the migration here.
