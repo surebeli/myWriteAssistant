@@ -1,0 +1,22 @@
+.hopper/AGENTS.md
+  s_d314ccd8ad8e10::t_3b5de3711600f9 80
+  s_d314ccd8ad8e10::t_3dc5a80dbc3d10 11-13,17-36
+.hopper/HOPPER-FEEDBACK.md
+  s_d314ccd8ad8e10::t_c717f65683dc1e 148-177
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.1",
+  "base_commit_sha": "2502c35f8c852748bfa507ea2a9ca0ed4a3777c8",
+  "prompts": {},
+  "sessions": {
+    "s_d314ccd8ad8e10": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "950fe3e5-0fa8-493d-bfb7-1c5aeb45f933",
+        "model": "claude-opus-4-7"
+      },
+      "human_author": "litianyi <litianyi@corp.netease.com>"
+    }
+  }
+}
