@@ -145,6 +145,36 @@ dogfood 过程沉淀的洞察，分三类：
 - 劣势：commit message 与 task ID 不再 1:1（commit `[T02-rework]` 含原 scope 外的改动）；attribution 需要查 output.md 的 deviation 段
 - **协议建议**：fold 模式 OK 但 deviation 段必填，且 Leader review 必须 explicit acknowledge fold；不允许默默扩 scope
 
+### Cost methodology disclosure（2026-05-07，重要校准）
+
+**Round 1 + Round 2 早期 cost 数据严格说是 "tokens × API 公开价目折算"，不是用户真实边际付费**。实际计费分两类：
+
+- **Subscription 内**：Claude Opus / Claude Code / GPT-5.5 / Gemini / Kimi 都是包月——边际 $ = 0；token 量是 **quota 占用**（rate limit 内）
+- **API 按量**：DeepSeek-Pro / DeepSeek-Flash / Mimo-Pro 是真实 $ per call
+
+加上 **cache hit** 因素：API 部分 cached_read tokens 通常 ~10% 价目；subscription 不显式报但实际 throughput 受 rate limit 而非 token 数限
+
+**Essay 论据应修正**：
+- "200x 差距" 不是直接 $ 节省，是**quota 节省**——订阅用户把 cheap 活路由到 API tier 后，subscription quota 留给硬活，rate limit 下的 throughput 翻倍
+- 真实 $ 节省只对 **纯 API 用户** 直接成立
+- Mixed 用户（典型场景：订阅 + DeepSeek/Mimo API 兜底）在便宜任务路由后，**订阅 quota 弹性**比 $ 节省更突出
+
+**Round 2 cost 数据双轨记录**：
+
+| Task | Owner | Token-estimated $ | 真实边际 $（订阅或 API）|
+|------|-------|------------------|----------------------|
+| T07 | gpt-5.5-high (sub) | $0.32 | **$0**（订阅内）+ quota: 25k tokens |
+| T08 | pair-A: kimi-think (sub) + ds-flash (API) | (待跑) | sub-quota + ~$0.001 API |
+| T09 | pair-B: mimo-pro (API) + ds-flash (API) | (待跑) | 全 API，真实 $ |
+| T18a | pair-C: ds-pro (API) + gemini-flash (sub) | (待跑) | ds-pro API + sub-quota |
+| T14-spike | pair-D: ds-pro (API) + kimi-nothink (sub) | (待跑) | ds-pro API + sub-quota |
+
+essay v2/v3 需要把 "200x cost ratio" 表述改成：
+- 标题不变（cheap tiers viable for bounded work）
+- 数字改成 **token throughput ratio**（不是 $ ratio）
+- 强调 "for mixed-account users, this preserves subscription quota for hard work"
+- API-only 用户那段单独保留（直接 $ 节省 200x 仍成立）
+
 ### Round 2 — Cost-skew experiment design (2026-05-07)
 
 **Hypothesis**: PING discipline 让 role-LLM 解耦成可能；Round 1 的 GPT-5.5 重活占比可被 cheap-tier pair 替代而不显著损失质量；总 cost 降 50-70%。
