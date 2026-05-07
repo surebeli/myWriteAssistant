@@ -156,14 +156,25 @@ dogfood 过程沉淀的洞察，分三类：
 - Builder: 拆 single/pair-A/pair-B 三种配置做对照
 - Builder-UI: 同 Gemini
 
-**对照实验**：
+**对照实验（精化版含 thinking-mode）**：
 
-| Task | Owner | 期望 cost | 真实 cost | 质量 vs Round 1 |
-|------|-------|---------|---------|----------------|
-| T07 (Kimi adapter, S) | builder-single (GPT-5.5 xhigh) | $0.20-0.30 | (待跑) | (基线) |
-| T08 (DeepSeek adapter, S) | builder-pair-A (Kimi+DeepSeek) | $0.05-0.10 | (待跑) | (vs T07) |
-| T09 (Cost recording, M) | builder-pair-B (Mimo+DeepSeek) | $0.05-0.15 | (待跑) | (vs Round 1 M tasks) |
-| T05 (Settings UI, L) | builder-ui (Gemini) | $0.30-0.60 | (待跑) | (新 Builder-UI 实战，无对照) |
+| Task | Effort | Owner（含 thinking-mode）| 期望 cost | 真实 cost | 质量 vs Round 1 |
+|------|--------|--------------------------|---------|---------|----------------|
+| T07 (Kimi adapter) | S | builder-single = **gpt-5.5-high** | $0.10-0.20 | (待跑) | **控制基线** |
+| T08 (DeepSeek adapter) | S | pair-A = **kimi-thinking + deepseek-flash** | $0.04-0.08 | (待跑) | vs T07 |
+| T09 (Cost recording) | M | pair-B = **mimo-pro + deepseek-flash** | $0.06-0.12 | (待跑) | vs Round 1 M task |
+| T18a (Migration bridge) | M | pair-C = **deepseek-pro + gemini-flash** | $0.05-0.10 | (待跑) | vs T09 (cross-pair compare) |
+| T14-spike (调研) | S | pair-D = **deepseek-pro + kimi-nothinking** | $0.02-0.05 | (待跑) | 最低 cost 配置极限测 |
+| T05 (Settings UI) | L | builder-ui = **gemini** | $0.20-0.50 | (待跑) | UI 角色实战 |
+
+**预期 Round 2 总开销**：~$0.50-1.10（vs Round 1 $2.20，预期降 50-75%）。+ 6 个 critic review 各 ~$0.20-0.40 = +$1.20-2.40。Round 2 总 ~$1.70-3.50（critic 是大头）。
+
+**核心 essay #2 数据点**：
+
+1. T07 (single gpt-5.5-high) vs T08 (pair-A kimi+deepseek) — **同 task 类型，single vs pair**
+2. T09 (pair-B mimo) vs T18a (pair-C deepseek-pro) — **不同 substantive 模型对比，sidecar 不同**
+3. T14-spike (pair-D 最低配置) — **协议在最便宜 stack 上是否仍 work**
+4. 4 种 pair 的 review verdict 分布（accept-strong / accept-with-note / rework）— 质量 vs cost 的 Pareto frontier
 
 **预期 essay #2 论据**：
 - Cost 表对比 Round 1 vs Round 2：同 protocol，cheap-tier pair 让总开销降 X%
