@@ -1,0 +1,21 @@
+.hopper/HOPPER-FEEDBACK.md
+  s_d314ccd8ad8e10::t_c4790cb7e9a553 126-154
+.hopper/handoffs/T02-rework-output.md
+  s_d314ccd8ad8e10::t_9110ee92b662d7 45-80
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.1",
+  "base_commit_sha": "615fa6274fe039910118143f8dc9927a344de673",
+  "prompts": {},
+  "sessions": {
+    "s_d314ccd8ad8e10": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "950fe3e5-0fa8-493d-bfb7-1c5aeb45f933",
+        "model": "claude-opus-4-7"
+      },
+      "human_author": "litianyi <litianyi@corp.netease.com>"
+    }
+  }
+}
