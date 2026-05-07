@@ -1,0 +1,19 @@
+.hopper/handoffs/T-OPENAI-output.md
+  s_d314ccd8ad8e10::t_73d2b311b94054 35-69
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.1",
+  "base_commit_sha": "df1accfede1babf171fdea7df754366987855355",
+  "prompts": {},
+  "sessions": {
+    "s_d314ccd8ad8e10": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "950fe3e5-0fa8-493d-bfb7-1c5aeb45f933",
+        "model": "claude-opus-4-7"
+      },
+      "human_author": "litianyi <litianyi@corp.netease.com>"
+    }
+  }
+}
