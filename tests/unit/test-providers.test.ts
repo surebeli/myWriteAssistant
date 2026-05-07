@@ -106,4 +106,19 @@ describe("test-providers smoke runner", () => {
       { provider: "claude", status: "passed" },
     ]);
   });
+
+  test("require-all-stable reports OpenAI missing key instead of not_registered", async () => {
+    const summary = await runProviderSmoke({
+      adapters: listAdapters(),
+      env: {},
+      requireAllStable: true,
+      sendPing: async () => "pong",
+    });
+
+    expect(summary.results).toContainEqual({
+      provider: "openai",
+      status: "failed",
+      reason: "missing_key",
+    });
+  });
 });

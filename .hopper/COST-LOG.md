@@ -14,3 +14,4 @@
 | 2026-05-06 | T15 | critic | GPT-5.5 Codex | ~90000/~6500 | ~$0.65 | T01-T04 adversarial review; found client/server break, missing OpenAI task, sanitizer gap |
 | 2026-05-07 | T02-rework | builder | GPT-5.5 Codex | ~105000/~13000 | ~$0.85 | Client providerConfig/requestId wiring, proactive sanitized error, Doubao .chat routing, data stream protocol encoder |
 | 2026-05-07 | T-SANITIZER-FIX | builder | GPT-5.5 Codex | ~42000/~5200 | ~$0.34 | Expanded shared sanitizer regex coverage and centralized existing adapter normalizeError redaction |
+| 2026-05-07 | T-OPENAI | builder | GPT-5.5 Codex | ~52000/~6500 | ~$0.42 | Registry-only OpenAI adapter, .chat routing guard, smoke path coverage, strict gate OpenAI missing_key verification |
