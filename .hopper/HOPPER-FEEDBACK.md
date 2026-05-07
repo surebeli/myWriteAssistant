@@ -145,6 +145,36 @@ dogfood 过程沉淀的洞察，分三类：
 - 劣势：commit message 与 task ID 不再 1:1（commit `[T02-rework]` 含原 scope 外的改动）；attribution 需要查 output.md 的 deviation 段
 - **协议建议**：fold 模式 OK 但 deviation 段必填，且 Leader review 必须 explicit acknowledge fold；不允许默默扩 scope
 
+### Round 2 — Cost-skew experiment design (2026-05-07)
+
+**Hypothesis**: PING discipline 让 role-LLM 解耦成可能；Round 1 的 GPT-5.5 重活占比可被 cheap-tier pair 替代而不显著损失质量；总 cost 降 50-70%。
+
+**Round 2 binding 变化**（详见 AGENTS.md）：
+- Researcher: Gemini → Kimi（同 long-ctx 档但便宜）
+- Leader: Claude Opus → GPT-5.5 xhigh（推理 budget 给最高）
+- Critic: GPT-5.5 → Claude Opus 4.7（换 family 测 layered discovery 普适性）
+- Builder: 拆 single/pair-A/pair-B 三种配置做对照
+- Builder-UI: 同 Gemini
+
+**对照实验**：
+
+| Task | Owner | 期望 cost | 真实 cost | 质量 vs Round 1 |
+|------|-------|---------|---------|----------------|
+| T07 (Kimi adapter, S) | builder-single (GPT-5.5 xhigh) | $0.20-0.30 | (待跑) | (基线) |
+| T08 (DeepSeek adapter, S) | builder-pair-A (Kimi+DeepSeek) | $0.05-0.10 | (待跑) | (vs T07) |
+| T09 (Cost recording, M) | builder-pair-B (Mimo+DeepSeek) | $0.05-0.15 | (待跑) | (vs Round 1 M tasks) |
+| T05 (Settings UI, L) | builder-ui (Gemini) | $0.30-0.60 | (待跑) | (新 Builder-UI 实战，无对照) |
+
+**预期 essay #2 论据**：
+- Cost 表对比 Round 1 vs Round 2：同 protocol，cheap-tier pair 让总开销降 X%
+- 质量 metric：Round 2 task 经 Claude Opus Critic 后的 review verdict 分布（accept-strong / accept-with-note / rework）；如分布与 Round 1 差不多，证明 cheap-tier 在 PING discipline 下能替代昂贵 tier
+- Negative result 也是论据：如 cheap pair 出更多 rework，则 essay 立场调整为"不是所有任务都能下放，下放有边界"
+
+**风险**：
+- Mimo-V2.5-Pro 我没用过；可能在 PING v5 协议遵循度上不如 Kimi。如果 Mimo 跳协议，T09 数据失效，要换回 Kimi 跑 pair B
+- Pair 顺序（主体 commit → polish commit）会让一个 task 有 2 个 commit，breaks "每 task 一个 atomic commit" 原则；这是协议外的实验例外，要在 PING.md 备注或独立 task 模式
+- Claude Opus 作 Critic 在 Claude Code session 里需要重新读完整 spec + tasklist + dogfood log；context 成本高，每次 Critic 估 $0.30-0.50
+
 ### O12. Single-ping done 是 PING 协议 happy path 常态（vindication）
 
 - T-SANITIZER-FIX：用户输入"ping T-SANITIZER-FIX"，Builder 自动 pop / 实装 / 测试 / output.md / commit / report，**全程 0 out-of-band prose**
