@@ -26,7 +26,7 @@ Anchor: `.hopper/queue.md::root`
 | T18a | builder | pending | T03 | Migration bridge：Next API + Tauri command 读取 legacy DOUBAO env（不返完整 key）|
 | T18b | builder-ui | pending | T18a, T03 | 首启 migration dialog UI + 空状态引导组件（调 T18a bridge）|
 | T15 | critic | done | T01, T02, T03, T04 | PR diff adversarial review batch 1（出 `critic-T01-T04.md`）|
-| T07 | builder | pending | T04, T13 | Kimi adapter（registry-only，不直接改 UI）|
+| T07 | builder | done | T04, T13 | Kimi adapter（registry-only，不直接改 UI）|
 | T08 | builder | pending | T04, T13 | DeepSeek adapter（registry-only）|
 | T09 | builder | pending | T02, T05 | Cost recording：finish event with usage + IndexedDB idempotency |
 | T14-impl | builder | pending | T03, T14-spike | Tauri secure storage 实装 + DevTools 禁用 + key 导出工具（接 spike 决策）|
@@ -77,3 +77,5 @@ Anchor: `.hopper/queue.md::root`
 - T-SANITIZER-FIX done at 2026-05-07T11:08:10.5565534+08:00 — Extended shared error sanitizer coverage and routed existing adapter normalizeError implementations through sanitizeErrorMessage
 - T-OPENAI started at 2026-05-07T11:31:04.6209469+08:00 by builder (GPT-5.5 Codex)
 - T-OPENAI done at 2026-05-07T11:40:12.1848511+08:00 — Added registry-only OpenAI adapter with chat-completions routing, shared sanitizer usage, unit coverage, and OpenAI smoke path verification
+- T07 started at 2026-05-07T14:12:15.1112020+08:00 by builder (gpt-5.5-high)
+- T07 done at 2026-05-07T14:18:00.4296798+08:00 — Added registry-only Kimi adapter with Moonshot defaults, shared sanitizer usage, unit coverage, and smoke path verification

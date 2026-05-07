@@ -15,3 +15,4 @@
 | 2026-05-07 | T02-rework | builder | GPT-5.5 Codex | ~105000/~13000 | ~$0.85 | Client providerConfig/requestId wiring, proactive sanitized error, Doubao .chat routing, data stream protocol encoder |
 | 2026-05-07 | T-SANITIZER-FIX | builder | GPT-5.5 Codex | ~42000/~5200 | ~$0.34 | Expanded shared sanitizer regex coverage and centralized existing adapter normalizeError redaction |
 | 2026-05-07 | T-OPENAI | builder | GPT-5.5 Codex | ~52000/~6500 | ~$0.42 | Registry-only OpenAI adapter, .chat routing guard, smoke path coverage, strict gate OpenAI missing_key verification |
+| 2026-05-07 | T07 | builder | gpt-5.5-high | ~43000/~5600 | ~$0.32 | Registry-only Kimi adapter, Moonshot defaults, scoped tests/lint/typecheck, smoke path verification |

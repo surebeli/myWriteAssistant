@@ -107,7 +107,7 @@ describe("test-providers smoke runner", () => {
     ]);
   });
 
-  test("require-all-stable reports OpenAI missing key instead of not_registered", async () => {
+  test("require-all-stable reports OpenAI and Kimi missing keys instead of not_registered", async () => {
     const summary = await runProviderSmoke({
       adapters: listAdapters(),
       env: {},
@@ -117,6 +117,11 @@ describe("test-providers smoke runner", () => {
 
     expect(summary.results).toContainEqual({
       provider: "openai",
+      status: "failed",
+      reason: "missing_key",
+    });
+    expect(summary.results).toContainEqual({
+      provider: "kimi",
       status: "failed",
       reason: "missing_key",
     });
