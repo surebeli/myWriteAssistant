@@ -1,0 +1,49 @@
+.claude/settings.local.json
+  0000019e0122eb51 1-10
+---
+{
+    "schema_version":  "authorship/3.0.0",
+    "git_ai_version":  "1.4.1",
+    "base_commit_sha":  "ff5dc3886ca56d2310e27c99f735270aaaac88be",
+    "prompts":  {
+                    "0000019e0122ac1c":  {
+                                             "agent_id":  {
+                                                              "model":  "gpt-5.5",
+                                                              "id":  "ai-thread-codex-gpt-5.5-1778135510044",
+                                                              "tool":  "codex"
+                                                          },
+                                             "human_author":  "litianyi",
+                                             "messages":  [],
+                                             "total_additions":  0,
+                                             "total_deletions":  0,
+                                             "accepted_lines":  0,
+                                             "overriden_lines":  0
+                                         },
+                    "0000019e0122eb08":  {
+                                             "agent_id":  {
+                                                              "tool":  "codex",
+                                                              "id":  "ai-thread-codex-gpt-5.5-1778135526152",
+                                                              "model":  "gpt-5.5"
+                                                          },
+                                             "human_author":  "litianyi",
+                                             "messages":  [],
+                                             "total_additions":  0,
+                                             "total_deletions":  0,
+                                             "accepted_lines":  0,
+                                             "overriden_lines":  0
+                                         },
+                    "0000019e0122eb51":  {
+                                             "agent_id":  {
+                                                              "id":  "ai-thread-codex-gpt-5.5-1778135526225",
+                                                              "tool":  "codex",
+                                                              "model":  "gpt-5.5"
+                                                          },
+                                             "human_author":  "litianyi",
+                                             "messages":  [],
+                                             "total_additions":  10,
+                                             "total_deletions":  0,
+                                             "accepted_lines":  10,
+                                             "overriden_lines":  0
+                                         }
+                }
+}
