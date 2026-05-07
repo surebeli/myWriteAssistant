@@ -1,0 +1,21 @@
+.hopper/handoffs/T-SANITIZER-FIX-output.md
+  s_d314ccd8ad8e10::t_3cfbce4863f8d8 33-60
+.hopper/HOPPER-FEEDBACK.md
+  s_d314ccd8ad8e10::t_c4a1da35069897 148-155
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.1",
+  "base_commit_sha": "b2aac7c4c85b42a0ca55318b17770f4af9384484",
+  "prompts": {},
+  "sessions": {
+    "s_d314ccd8ad8e10": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "950fe3e5-0fa8-493d-bfb7-1c5aeb45f933",
+        "model": "claude-opus-4-7"
+      },
+      "human_author": "litianyi <litianyi@corp.netease.com>"
+    }
+  }
+}
