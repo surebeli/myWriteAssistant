@@ -1,5 +1,6 @@
 import { createOpenAI } from "@ai-sdk/openai";
 
+import { sanitizeErrorMessage } from "../route-helpers";
 import type { AIAdapter, AIProviderConfig, CoreMessage, NormalizedUsage } from "../types";
 
 const DEFAULT_BASE_URL = "https://ark.cn-beijing.volces.com/api/v3";
@@ -56,7 +57,7 @@ export const doubaoAdapter: AIAdapter = {
 
     return {
       code,
-      message: redactSensitiveText(message),
+      message: sanitizeErrorMessage(message),
     };
   },
 };
@@ -93,11 +94,4 @@ function readString(record: Record<string, unknown> | undefined, keys: string[])
   }
 
   return undefined;
-}
-
-function redactSensitiveText(message: string): string {
-  return message
-    .replace(/Bearer\s+[A-Za-z0-9._~+/=-]+/gi, "Bearer [redacted]")
-    .replace(/(api[_-]?key["']?\s*[:=]\s*["']?)[^"',\s}]+/gi, "$1[redacted]")
-    .replace(/(authorization["']?\s*[:=]\s*["']?)(?!Bearer\s+\[redacted\])[^"',\s}]+/gi, "$1[redacted]");
 }

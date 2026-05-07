@@ -13,3 +13,4 @@
 | 2026-05-06 | T-EXE-1 | executor-1 | Kimi 2.6 | ~18000/~3500 | ~$0.03 | JSDoc on 8 src/lib/ai/ files; tsc baseline verified; zero logic changes |
 | 2026-05-06 | T15 | critic | GPT-5.5 Codex | ~90000/~6500 | ~$0.65 | T01-T04 adversarial review; found client/server break, missing OpenAI task, sanitizer gap |
 | 2026-05-07 | T02-rework | builder | GPT-5.5 Codex | ~105000/~13000 | ~$0.85 | Client providerConfig/requestId wiring, proactive sanitized error, Doubao .chat routing, data stream protocol encoder |
+| 2026-05-07 | T-SANITIZER-FIX | builder | GPT-5.5 Codex | ~42000/~5200 | ~$0.34 | Expanded shared sanitizer regex coverage and centralized existing adapter normalizeError redaction |

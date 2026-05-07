@@ -106,9 +106,17 @@ export function createDataStreamResponse(
 /** Strip sensitive tokens (Bearer, API keys, Authorization) from an error message. */
 export function sanitizeErrorMessage(message: string): string {
   return message
-    .replace(/Bearer\s+[A-Za-z0-9._~+/=-]+/gi, "Bearer [redacted]")
-    .replace(/(api[_-]?key["']?\s*[:=]\s*["']?)[^"',\s}]+/gi, "$1[redacted]")
-    .replace(/(authorization["']?\s*[:=]\s*["']?)(?!Bearer\s+\[redacted\])[^"',\s}]+/gi, "$1[redacted]");
+    .replace(/\bBearer\s+[^"',\s}]+/gi, "Bearer [redacted]")
+    .replace(
+      /\b((?:api[_-]?key|api key)(?:\s+provided)?|x-api-key)(["']?\s*(?::|=)\s*["']?|\s+)[^"',\s}]+/gi,
+      "$1$2[redacted]",
+    )
+    .replace(
+      /\b(Authorization)(["']?\s*(?::|=)\s*["']?|\s+)(?!Bearer\s+\[redacted\])[^"',\s}]+/gi,
+      "$1$2[redacted]",
+    )
+    .replace(/\bsk-ant-[A-Za-z0-9_-]{8,}\b/g, "[redacted]")
+    .replace(/\bsk-[A-Za-z0-9_-]{8,}\b/g, "[redacted]");
 }
 
 /**
